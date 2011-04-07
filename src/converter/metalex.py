@@ -1,0 +1,866 @@
+# -*- coding: utf-8 -*-
+
+import xml.dom.minidom
+import re
+import hashlib
+import uuid
+from rdflib import ConjunctiveGraph, Namespace, Literal, URIRef, RDF, XSD
+from util import CiteGraph, ConversionReport
+
+
+
+
+class MetaLexConverter():
+
+    # Base URI for newly created elements
+    top_uri = "http://doc.metalex.eu/"
+
+    # MetaLex namespaces
+    MO = Namespace('http://www.metalex.eu/schema/1.0#')
+    MS = Namespace('http://www.metalex.eu/schema/1.0#')    
+
+    # Standard namespaces
+    RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
+    XML = Namespace('http://www.w3.org/XML/1998/namespace')
+    OWL = Namespace('http://www.w3.org/2002/07/owl#')
+    XHTML = Namespace('http://www.w3.org/1999/xhtml#')
+
+   
+    # Standard elements
+    source_root = "source_root"
+    id = "id"
+    hc = "hcontainer"
+    hct = "hcontainer_text"
+    c = "container"
+    ce = "container_ext"
+    b = "block"
+    i = "inline"
+    ht = "htitle"
+    r = "source_root"
+    mc = "mcontainer"
+    ms = "milestone"
+    m = "meta"
+    ci = "cite"
+
+    # Class attribute for CSS rendering  
+    cl = 'class'
+    
+    # Type attribute, for linking to base ontology
+    t = str(RDF.type)
+
+    schemaLocation = "xsi:schemaLocation"
+    xmlns = "xmlns"
+    xmlns_xsi = "xmlns:xsi"
+    xmlns_xml = "xmlns:xml"
+    
+    # Standard RDFa attributes
+    r = "rel"
+    h = "href"
+    p = "property"
+    l = 'xml:lang'
+    s = "src"
+    ct = "content"
+    a = "about"
+    dt = "datatype"
+    # Standard MetaLex attributes
+    n = "name"
+    
+    label = str(RDFS.label)
+    
+    # Standard semantic relations
+    realizes = MO["realizes"]
+    parent = MO["partOf"]
+    previous = MO["previous"]
+    next = MO["next"]
+    cites = MO["cites"]
+    result = MO["result"]
+    
+    sameAs = OWL["sameAs"]
+    
+
+    def __init__(self, id, doc, version, flags):
+        # Set conversion flags
+        self.inline_metadata = flags['inline_metadata']
+        self.produce_rdf = flags['produce_rdf']
+        self.produce_graph = flags['produce_graph']
+        self.profile = flags['profile']
+        
+        
+        # Create the source document
+        self.source_doc = doc
+
+        # Create the target document
+        self.target_doc = xml.dom.minidom.getDOMImplementation().createDocument(self.MS, "source_root", None)
+
+        # Set instance-variables for version, profile and report        
+        self.v = version
+        self.report = ConversionReport(id)
+        
+        # Make sure we create a new RDF graph for every document
+        self.graph = ConjunctiveGraph()
+        
+        # Get the ontology base for the source elements
+        self.o = self.profile.lookup('ontology_base')        
+        self.WO = Namespace(self.o)
+        
+        # Bind namespaces to graph
+        self.graph.namespace_manager.bind('mo',self.MO)
+        self.graph.namespace_manager.bind('xhtml',self.XHTML)
+        self.graph.namespace_manager.bind('wo',self.WO)
+        self.graph.namespace_manager.bind('owl',self.OWL)
+        self.graph.namespace_manager.bind('xml',self.XML)
+        self.graph.namespace_manager.bind('rdfs',self.RDFS)
+
+        # Create a new citation graph...
+        self.cg = CiteGraph()
+
+        self.source_root_uri = ""
+        self.creation_event_uri = ""
+        
+
+        
+
+
+    # ----------
+    # Basic Functions
+    # ----------
+    def handleRoot(self):
+        # Check whether the document is empty or not
+        if len(self.source_doc.getElementsByTagName(self.profile.lookup('error')))>0 :
+            print "ERROR: Document is empty."
+            return self.report.getReport()
+
+
+        # Get the root element for the source and target DOM tree
+        source_root = self.source_doc.getElementsByTagName(self.profile.lookup('root'))[0]
+        target_root = self.target_doc.documentElement
+        
+        self.source_root_uri = source_root.getAttribute(self.profile.lookup('root_id'))
+        print "Starting {0} ...".format(self.source_root_uri)
+        
+        # Determine URIs for the root node
+        work_uri = self.top_uri + self.source_root_uri         
+    
+        lang_tag = self.setLanguageTag(source_root, target_root, "")
+        expression_uri = self.getExpressionURI(work_uri, lang_tag)
+        
+        # Create attributes for the root node        
+        self.createLegislativeModificationEvent(target_root, expression_uri)
+        
+        self.createIdentifyingAttributes(source_root, target_root, expression_uri)
+                
+        self.setNamespaces(target_root)
+        
+        self.handleMetadata(target_root, None, expression_uri, work_uri, source_root.attributes)
+        
+        # Report the substitution
+        self.report.addSubstitution(self.source_root)
+
+        for element in source_root.childNodes :
+            self.handle(element,target_root,work_uri,work_uri,expression_uri,target_root, lang_tag)
+        
+        print "... end {0}.".format(self.source_root_uri)
+        
+        return self.report.getReport()
+
+
+
+
+    def handle(self, source_node, target_parent_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index = 1):
+        # =====
+        # TODO: 
+        # 1) Check correct reference to parent source_node from elements that may have been moved to ensure conformance to CML
+        # ===== 
+        
+
+        if source_node.nodeType == source_node.ELEMENT_NODE :
+            # ==========
+            # Deal with HContainers
+            # ==========
+            if source_node.tagName in self.profile.lookup(self.hc) :
+                target_node = self.target_doc.createElement(self.hc)
+                
+                work_uri = self.getHContainerWorkURI(source_node, base_work_uri, index)
+
+                lang_tag = self.setLanguageTag(source_node, target_node, lang_tag)
+                expression_uri = self.getExpressionURI(work_uri, lang_tag)
+                
+                self.createIdentifyingAttributes(source_node, target_node, expression_uri)
+                
+                # caption = self.getText([source_node.getElementsByTagName("kop")[0]])
+                
+                ontology_type = self.o + source_node.tagName
+                
+                additional_attrs = {self.t : ontology_type }
+
+                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
+                
+                target_parent_node.appendChild(target_node)
+                self.report.addSubstitution(self.hc)
+                
+                index_counter = 0
+                for element in source_node.childNodes :
+                    if element.nodeType != element.TEXT_NODE:
+                        index_counter += 1
+                    self.handle(element,target_node,work_uri, work_uri, expression_uri,target_node,lang_tag,index_counter)
+
+            # ==========
+            # Deal with Text-HContainers (such as articles)
+            # ==========
+            elif source_node.tagName in self.profile.lookup(self.hct) :
+                target_node = self.target_doc.createElement(self.hc)
+
+                # hoofdstuk/kop/nr
+                work_uri = self.getHContainerWorkURI(source_node, base_work_uri, index)
+                
+                lang_tag = self.setLanguageTag(source_node, target_node, lang_tag)
+                expression_uri = self.getExpressionURI(work_uri, lang_tag)
+                
+                self.createIdentifyingAttributes(source_node, target_node, expression_uri)
+
+                # caption = self.getText([source_node.getElementsByTagName("kop")[0]])
+                
+                ontology_type = self.o + source_node.tagName
+                
+                additional_attrs = { self.t : ontology_type }
+                
+                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
+
+                # Deal with the htitle (kop)
+                self.handle(source_node.getElementsByTagName("kop")[0],target_node,work_uri,work_uri, expression_uri,target_node, lang_tag)
+                
+                container_node = self.target_doc.createElement(self.c)
+                container_node.setAttributeNode(self.createItemIdentifier(container_node))
+                container_node.setAttributeNode(self.createNameAttribute(container_node))
+                container_node.setAttributeNode(self.createClassAttribute(container_node))
+
+                self.report.addSubstitution(self.hc)
+                self.report.addCorrection(source_node.tagName)
+                
+                index_counter =0
+                for element in source_node.childNodes :
+                    if element.nodeName != "kop" :
+                        if element.nodeType != element.TEXT_NODE:
+                            index_counter += 1
+                        self.handle(element,container_node,work_uri,work_uri, expression_uri,container_node,lang_tag, index_counter)
+                
+                target_node.appendChild(container_node)
+                target_parent_node.appendChild(target_node)
+
+            # ==========
+            # Deal with Containers
+            # ==========
+            elif source_node.tagName in self.profile.lookup(self.c) :
+                target_node = self.target_doc.createElement(self.c)
+                
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, target_node, lang_tag, index)
+                
+                target_parent_node.appendChild(target_node)
+                self.report.addSubstitution(self.c)
+                
+                index_counter = 0
+                for element in source_node.childNodes :
+                    if element.nodeType != element.TEXT_NODE:
+                        index_counter += 1
+                    self.handle(element,target_node, base_work_uri, work_uri, expression_uri, target_node, lang_tag, index_counter)
+
+            # ==========
+            # Deal with Blocks
+            # ==========
+            elif source_node.tagName in self.profile.lookup(self.b) :
+                target_node = self.target_doc.createElement(self.b)
+
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+
+                target_parent_node.appendChild(target_node)
+                self.report.addSubstitution(self.b)
+
+                index_counter = 0
+                for element in source_node.childNodes :
+                    if element.nodeType != element.TEXT_NODE:
+                        index_counter += 1
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+
+
+            # ==========
+            # Deal with Special Containers (need to be put underneath parent container... the metadata_parent)
+            # ==========
+            elif source_node.tagName in self.profile.lookup(self.ce) :
+                target_node = self.target_doc.createElement(self.c)
+
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+
+                metadata_parent.appendChild(target_node)
+                self.report.addSubstitution(self.c)
+                self.report.addCorrection(source_node.tagName)
+
+                index_counter = 0
+                for element in source_node.childNodes :
+                    if element.nodeType != element.TEXT_NODE:
+                        index_counter += 1
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+                    
+            # ==========
+            # Deal with hTitles
+            # ==========
+            elif source_node.tagName in self.profile.lookup(self.ht) :
+                target_node = self.target_doc.createElement(self.ht)
+
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+
+                target_parent_node.appendChild(target_node)
+
+                self.report.addSubstitution(self.ht)
+                
+                index_counter = 0
+                for element in source_node.childNodes :
+                    if element.nodeType != element.TEXT_NODE:
+                        index_counter += 1
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+                    
+            # ==========
+            # Deal with an Inline element 
+            # Ensure that the element occurs inside a block, 
+            # as it often doesn't according to the mapping to the source XML
+            # ==========                    
+            elif source_node.tagName in self.profile.lookup(self.i) :
+                target_node = self.target_doc.createElement(self.i)
+
+                # Add the metadata for inline elements to the container parent.
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+
+                
+                if target_parent_node.tagName != self.b and target_parent_node.tagName != self.ht and target_parent_node.tagName != self.i:
+                    block_node = self.createBlock(target_node)
+                    target_parent_node.appendChild(block_node)
+                    
+                    self.report.addSubstitution(self.i)
+                    self.report.addCorrection(source_node.tagName)
+                else :
+                    self.report.addSubstitution(self.i)
+                    target_parent_node.appendChild(target_node)
+
+                index_counter = 0
+                for element in source_node.childNodes :
+                    if element.nodeType != element.TEXT_NODE:
+                        index_counter += 1
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)                
+                          
+
+
+            # ==========
+            # Deal with Milestone
+            # Ensure that the element occurs inside a block, 
+            # as it often doesn't according to the mapping to the source XML
+            # ==========
+            elif source_node.tagName in self.profile.lookup(self.ms) :
+                target_node = self.target_doc.createElement(self.ms)
+
+                # Add the metadate for inline elements to the container parent.
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+
+                if target_parent_node.tagName != self.b and target_parent_node.tagName != self.ht and target_parent_node.tagName != self.i:
+                    block_node = self.createBlock(target_node)
+                    target_parent_node.appendChild(block_node)
+                    
+                    self.report.addSubstitution(self.m)
+                    self.report.addCorrection(source_node.tagName)
+                else :
+                    self.report.addSubstitution(self.m)
+                    target_parent_node.appendChild(target_node)
+                    
+
+            # ==========
+            # Deal with Cite
+            # ==========
+            elif source_node.tagName in self.profile.lookup(self.ci) :
+                target_node = self.target_doc.createElement(self.i)
+
+                # Add the metadata for citation elements to the container parent
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+                target_parent_node.appendChild(target_node)
+                self.report.addSubstitution(self.i)
+                
+                index_counter = 0
+                for element in source_node.childNodes :
+                    if element.nodeType != element.TEXT_NODE:
+                        index_counter += 1
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+
+            else :
+                print 'WARNING: Node does not occur in mapping list: '+ source_node.tagName
+
+                
+        elif source_node.nodeType == source_node.TEXT_NODE :
+            # target_node = self.target_doc.createTextNode()
+            
+            text = self.stripSpaces(source_node.data)
+            # .encode('ascii','xmlcharrefreplace')
+            
+            if text != ' ' and text != '' and text != '\n':
+                # print '\"' + text + '\"'
+                target_node = self.target_doc.createTextNode(text)
+                
+                self.report.addSubstitution('text')
+                target_parent_node.appendChild(target_node)
+            else :
+                # Don't insert empty TEXT_NODEs
+                pass
+            
+            # Don't continue handling, because text nodes do not have children.
+        else :
+            # If the node is not an element, nor a text node, then do nothing
+            pass
+
+
+
+    # ----------
+    # Utility Functions
+    # ----------
+
+    def createLegislativeModificationEvent(self, node, expression_uri):
+        mcontainer, new = self.getMContainer(node)
+        
+        self.creation_event_uri = self.top_uri + 'event/' + self.source_root_uri + '/' + self.v
+        
+        date = self.top_uri + 'date/' + self.v
+        
+        # ===========
+        # Add the modification event
+        # ===========
+        meta = self.createHrefMeta(self.creation_event_uri, self.t, self.MO['LegislativeModification'])
+        mcontainer.appendChild(meta)
+        
+        self.graph.add((URIRef(self.creation_event_uri), RDF.type , self.MO['LegislativeModification']))
+        
+        # ===========
+        # Add the modification event date
+        # ===========
+        meta = self.createHrefMeta(self.creation_event_uri, self.MO['date'], date)
+        mcontainer.appendChild(meta)
+        
+        self.graph.add((URIRef(self.creation_event_uri), self.MO['date'], URIRef(date)))
+        self.graph.add((URIRef(date), RDF.type , self.MO['Date']))
+        
+        # ===========
+        # Add the modification event date value
+        # ===========
+        meta = self.createPropertyMeta(date, RDF.value, self.v)
+        mcontainer.appendChild(meta)
+        
+        self.graph.add((URIRef(date), RDF.value, Literal(self.v)))
+        
+        # ===========
+        # Finally add the mcontainer to the node (if it's new)
+        # ===========
+        if new == True : 
+            node.appendChild(mcontainer)                 
+        
+                
+
+        
+
+    def setNamespaces(self, new_root):
+        
+        schema_location = self.target_doc.createAttribute(self.schemaLocation)
+        schema_location.value = "http://www.metalex.eu/metalex/1.0 ../src/metalex-relaxed.xsd"
+        new_root.setAttributeNode(schema_location)
+        
+        xmlns = self.target_doc.createAttribute(self.xmlns)
+        xmlns.value = "http://www.metalex.eu/metalex/1.0" 
+        new_root.setAttributeNode(xmlns)
+        
+        xmlns_xsi = self.target_doc.createAttribute(self.xmlns_xsi)
+        xmlns_xsi.value = "http://www.w3.org/2001/XMLSchema-instance" 
+        new_root.setAttributeNode(xmlns_xsi)
+        
+        xmlns_xml = self.target_doc.createAttribute(self.xmlns_xml)
+        xmlns_xml.value = "http://www.w3.org/XML/1998/namespace" 
+        new_root.setAttributeNode(xmlns_xml)
+             
+
+
+    def getMContainer(self, node):
+        new = False
+        # Get the existing mcontainer, or create a new one.
+        if node.getElementsByTagName(self.mc).length == 0:
+            mcontainer = self.target_doc.createElement(self.mc)
+            mcontainer.setAttributeNode(self.createNameAttribute(mcontainer))
+            new = True
+        else:
+            mcontainer = node.getElementsByTagName(self.mc).item(0)
+        return mcontainer, new
+
+    def handleMetadata(self, node, parent_expression_uri, expression_uri, work_uri, attributes, additional_attrs = None):
+
+        
+        mcontainer, new = self.getMContainer(node)
+        
+        # ===========
+        # Add type to expression level identifier
+        # ===========
+        meta = self.createHrefMeta(expression_uri, self.t, self.MO['BibliographicExpression'])
+        mcontainer.appendChild(meta)
+        
+        
+     
+        
+        # ===========
+        # Add reference to work level identifier
+        # ===========
+        meta = self.createHrefMeta(expression_uri, self.realizes, work_uri)
+        mcontainer.appendChild(meta)
+        
+        
+        
+        # ===========
+        # Add type to work level identifier
+        # ===========
+        meta = self.createHrefMeta(work_uri, self.t, self.MO['BibliographicWork'])
+        mcontainer.appendChild(meta)
+        
+        
+        
+        
+        # ===========
+        # Add result relation between creation event and expression
+        # ===========
+        meta = self.createHrefMeta(self.creation_event_uri, self.result, expression_uri)
+        mcontainer.appendChild(meta)
+          
+
+        
+        # ===========
+        # Add reference to expression-level parent
+        # ===========
+        
+        # TODO: Include language tag in expression of parent work URI. 
+        # Perhaps the parent_expression_uri chain should be replaced by parent_expression_uri's throughout.
+        if parent_expression_uri :
+            meta = self.createHrefMeta(expression_uri, self.parent, parent_expression_uri)
+            mcontainer.appendChild(meta)     
+                  
+
+        
+        # ===========
+        # Add the 'additional attributes' if they exist
+        # ===========
+        if additional_attrs :
+            for k in additional_attrs :
+                # Check if we're dealing with a URI or a Literal
+                if re.match('^http',additional_attrs[k]) :
+                    meta = self.createHrefMeta(expression_uri, k, additional_attrs[k])
+                    mcontainer.appendChild(meta)
+                else :
+                    meta = self.createPropertyMeta(expression_uri, k, additional_attrs[k])
+                    mcontainer.appendChild(meta)
+                
+        
+        # ===========
+        # Transfer other attributes from BWB node  
+        # ===========      
+        for k in attributes.keys():
+            
+            # Get the attribute's value
+            value = attributes[k].value
+            
+            # Only do stuff if the attribute has a value
+            if value != '' :
+                # If we're dealing with a 'cite_target' attribute, create a href URI for known non-URI identifiers (e.g. JuriConnect)
+                if k in self.profile.lookup('cite_target') :
+                    target = self.mintTargetURI(value)
+                
+                    # Add an edge to the citegraph
+                    self.cg.update((expression_uri,target))
+                
+                    meta = self.createHrefMeta(expression_uri, self.cites, target)
+                    mcontainer.appendChild(meta)
+                
+                    
+                # Always add the original attribute, unless it is the xml:lang property
+                if k != "xml:lang" :
+                    meta = self.createPropertyMeta(expression_uri, self.WO[k], attributes[k].value)   
+                else :
+                    # Add a custom language property, as xml:lang cannot be used as rdf:Property in the ontology.
+                    meta = self.createPropertyMeta(expression_uri, self.MO['lang'], attributes[k].value)            
+                    
+                mcontainer.appendChild(meta)
+                
+        # ===========
+        # Finally add the mcontainer to the node (if it's new)
+        # ===========
+        if new == True : 
+            node.appendChild(mcontainer)
+    
+    def mintTargetURI(self,value):
+        target = self.convertJuriConnect(value)
+
+        if target == None :
+            target = self.top_uri + value
+
+        return target
+            
+    def getHContainerWorkURI(self, node, base_work_id, index):
+        try :
+            nr = self.getText(node.getElementsByTagName("nr")[0].childNodes)
+            return "{0}/{1}/{2}".format(base_work_id,node.localName,nr.strip())
+        except :
+            return "{0}/{1}/{2}".format(base_work_id,node.localName,index)
+            
+    def createClassAttribute(self, node):
+        new_class = self.target_doc.createAttributeNS(str(self.XHTML),self.cl)
+        new_class.value = node.tagName
+        return new_class
+        
+    def createNameAttribute(self, node):
+        new_name = self.target_doc.createAttribute(self.n)
+        new_name.value = node.tagName
+        return new_name
+
+
+    # Retrieve text from child nodes (strip XML elements).
+    def getText(self, nodelist):
+        rc = []
+        # For all child nodes, recursively get the 'data' of each child node (the text)
+        for node in nodelist:
+            if node.nodeType == node.TEXT_NODE:
+                # Append + extra spacing for security, we'll remove the doubles later
+                rc.append(' ' + node.data.encode('utf-8') + ' ' )
+            else:
+                rc.append(self.getText(node.childNodes))
+
+        # Return the UTF-8 encoding of the text with all occurrences of multiple spaces replaced by a single one
+        return self.stripSpaces(''.join(rc))   
+
+    # Retrieve text from child nodes of particular element types
+    def getTextForElements(self, nodelist, elementTypes):
+        rc = []
+        # For all child nodes, recursively get the 'data' of each child node (the text)
+        for node in nodelist:
+            if node.nodeType == node.ELEMENT_NODE and node.tagName in elementTypes:
+                rc.append(self.getText(node.childNodes))
+            elif node.nodeType == node.TEXT_NODE:
+                # Append + extra spacing for security, we'll remove the doubles later
+                rc.append(' ' + node.data.encode('utf-8') + ' ') 
+
+        # Return the UTF-8 encoding of the text with all occurrences of multiple spaces replaced by a single one
+        return self.stripSpaces(''.join(rc))
+
+    def stripSpaces(self, text):
+        return re.sub(r'\s\s+',' ', re.sub(r'\n',' ', text))
+
+    def stripTexts(self, node):
+        cNodes = node.childNodes 
+        for child in cNodes :
+            # child.normalize()
+            if child.nodeType == child.TEXT_NODE and child.data.isspace() :
+                node.removeChild(child)
+                child.unlink()
+
+
+    def createHrefMeta(self, s, p, o):
+        meta = self.target_doc.createElement(self.m)
+        meta.setAttributeNode(self.createNameAttribute(meta))
+        meta.setAttributeNode(self.createItemIdentifier(meta))
+
+        about = self.target_doc.createAttribute(self.a)
+        about.value = s
+
+        rel = self.target_doc.createAttribute(self.r)
+        rel.value = p
+
+        href = self.target_doc.createAttribute(self.h)
+        href.value = o
+
+        meta.setAttributeNode(about)
+        meta.setAttributeNode(rel)
+        meta.setAttributeNode(href)
+        
+        self.graph.add((URIRef(s), URIRef(p), URIRef(o)))
+
+        return meta
+
+    def createPropertyMeta(self, s, p, o):
+        meta = self.target_doc.createElement(self.m)
+        meta.setAttributeNode(self.createNameAttribute(meta))
+        meta.setAttributeNode(self.createItemIdentifier(meta))
+
+        about = self.target_doc.createAttribute(self.a)
+        about.value = s
+
+        prop = self.target_doc.createAttribute(self.p)
+        prop.value = p
+
+        datatype = self.target_doc.createAttribute(self.dt)
+        if re.match('^\d\d\d\d-\d\d-\d\d$',o) :
+            datatype.value = XSD.date
+        elif re.match('^\d+$',o) :
+            datatype.value = XSD.int
+        else :
+            datatype.value = XSD.string
+            
+        content = self.target_doc.createAttribute(self.ct)
+        content.value = o
+
+        meta.setAttributeNode(about)
+        meta.setAttributeNode(prop)
+        meta.setAttributeNode(datatype)
+        meta.setAttributeNode(content)
+
+        
+        self.graph.add((URIRef(s), URIRef(p), Literal(o, datatype=datatype.value)))
+
+        return meta
+
+    def createItemIdentifier(self, new_node):
+        # Create the Item Level identifier
+        item_id = str(uuid.uuid4())
+           
+        new_id = self.target_doc.createAttribute(self.id)
+        new_id.value = item_id
+        return new_id
+        
+        
+    def createIdentifyingAttributes(self, node, new_node, expression_uri):
+        new_node.setAttributeNode(self.createItemIdentifier(new_node))
+        
+        # Add an RDFa about attribute for the expression URI
+        about = self.target_doc.createAttribute(self.a)
+        about.value = expression_uri
+        new_node.setAttributeNode(about)
+        
+        new_node.setAttributeNode(self.createNameAttribute(new_node))
+        new_node.setAttributeNode(self.createClassAttribute(node))       
+        
+         
+
+    def createSHA1Element(self, source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index):
+        # TODO: check for integer lang_tag
+
+
+        # TODO: TEST WHETHER base_work_uri SHOULD BE REPLACED BY target_parent_work_uri
+        # CHANGE HAS BEEN MADE, UNTESTED
+        
+        work_uri = target_parent_work_uri + "/" + source_node.localName + "/" + str(index)
+        
+        # Containers and blocks don't have nice identifiers, so we create a SHA1 hash of the 'plain' text contained in the element.
+        sha1_hex = hashlib.sha1(self.getText(source_node.childNodes)).hexdigest()
+        sha1_id = base_work_uri + "/" + source_node.localName + "/" + sha1_hex 
+
+        self.createIdentifyingAttributes(source_node, target_node, sha1_id)
+        
+        lang_tag = self.setLanguageTag(source_node, target_node, lang_tag)
+        expression_uri = self.getExpressionURI(work_uri, lang_tag)
+        
+        additional_attrs = { self.sameAs : sha1_id }
+
+        additional_attrs[self.t] = self.o + source_node.tagName
+        
+        self.handleMetadata(metadata_parent, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
+        
+        return work_uri, expression_uri, lang_tag
+
+    def convertJuriConnect(self, juriconnect):
+        # example:   1.0:v:BWBR0011823&amp;artikel=8
+
+
+
+        # Check whether it is a JuriConnect identifier (i.e. the regex produces a match), 
+        # then do something fancy, otherwise return None
+        if re.match('\d.\d:\w:([BWBRV]{4}\d{7})',juriconnect) :
+            # Use a Regex to get the relevant parts from the juriconnect identifier
+            svalue = re.split('[:|&|;|=]',juriconnect)
+        
+
+            # This is the work-level identifier if no article is referred to
+            target = self.top_uri + svalue[2]                
+
+            # Get all hcontainers from the profile
+            hcl = list(self.profile.lookup('hcontainer'))
+            hcl[len(hcl):] = list(self.profile.lookup('hcontainer_text'))
+            
+            
+            # TODO: Check whether this is correct
+            for hc in hcl :
+                if svalue.count(hc) > 0 :
+                    # This is the work-level identifier for the target of the citation if it refers to a hcontainer
+                    target += '/' + svalue[svalue.index(hc)] + '/' + svalue[svalue.index(hc)+1]
+                    break 
+
+
+            if svalue[1] == 'c' and svalue.count('g') == 0:
+                # If the Juriconnect reference is of type 'c', and no date is specified, 
+                # add the current version of this document to date the reference
+                target += '/' + self.v
+            elif svalue.count('g') > 0:
+                # Otherwise, if the date is specified, add that date to the reference
+                target += '/' + svalue[svalue.index('g')+1]    
+
+            return target
+        else :
+            return None
+        
+        
+    def printXML(self):
+        return self.target_doc.toprettyxml()
+        
+    def writeXML(self, filename):
+        # Write the target_document to a file using the pretty printer
+        target_file = open(filename, 'w')
+        target_file.write(self.target_doc.toprettyxml(encoding = 'utf-8'))
+        target_file.close()
+
+    def writeRDF(self, filename, format='turtle'):
+        self.graph.serialize(destination=filename, format=format)        
+        
+        
+    def writeGraph(self, filename, format='pajek') :
+        # Write the graph to a file using the specified format
+        target_file = open(filename, 'w')
+        
+        if format == 'pajek' :
+            target_file.write(self.cg.writePajek())
+        elif format == 'DOT' :
+            target_file.write(self.cg.writeDOT())
+
+        target_file.close()
+        
+    def getCited(self) :
+        return self.cg.getNodes()
+
+    def createBlock(self, new_node):
+        block_node = self.target_doc.createElement(self.b)
+        block_node.setAttributeNode(self.createItemIdentifier(block_node))
+        block_node.setAttributeNode(self.createNameAttribute(block_node))
+        block_node.setAttributeNode(self.createClassAttribute(block_node))
+        block_node.appendChild(new_node)
+        return block_node
+    
+    def setLanguageTag(self, source_node, target_node, lang_tag):
+        lt = source_node.getAttribute(u'xml:lang')
+        
+        lt_attribute = self.target_doc.createAttribute('xml:lang')
+        
+        if lt == "" and lang_tag == "" :
+            return ""
+        elif lt == "" :
+            lt = lang_tag
+
+        lt_attribute.value = lt   
+        target_node.setAttributeNode(lt_attribute)
+        
+        return lt
+
+
+
+    def getExpressionURI(self, work_uri, lang_tag):
+        if lang_tag == "":
+            expression_uri = work_uri + "/" + self.v
+        else:
+            expression_uri = work_uri + "/" + lang_tag + "/" + self.v
+        return expression_uri
+
+
+        
+        
+        

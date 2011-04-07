@@ -1,0 +1,15 @@
+
+
+Steps:
+
+* Install Python 2.7 for your OS
+* Install Python setuptools (for easy_install)
+
+* Install rdflib from http://www.rdflib.net
+  - (run 'easy_install -U "rdflib>=3.0.0"')
+	
+* Install BeautifulSoup from http://www.crummy.com/software/BeautifulSoup
+  - Get the latest source distribution (3.2 or higher) and build according to the instructions 
+  - (run 'setup.py install')
+  
+  

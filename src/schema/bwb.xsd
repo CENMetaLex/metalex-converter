@@ -1,0 +1,3723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  
+  ==============================================
+  Deze DTD is opgebouwd uit de volgende modulen:
+  ==============================================
+  
+      DTD :  /dtd/xml/bwb/bwb-plus-meta.dtd                        (RevId: 1.7  ; 2008-11-03 15:39:10)
+   module :   /dtd/xml/bwb/wetgeving.dtd                           (RevId: 1.23 ; 2009-05-13 13:19:48)
+   module :    /dtd/xml/modulen/gedeelde-elementen.mod             (RevId: 1.4  ; 2005-02-08 13:43:23)
+   module :     /dtd/xml/modulen/pcdata-elementen.mod              (RevId: 1.11 ; 2009-05-13 11:32:55)
+   module :     /dtd/xml/modulen/structuur-elementen.mod           (RevId: 1.14 ; 2008-09-10 11:55:22)
+   module :     /dtd/xml/modulen/lijsten.mod                       (RevId: 1.8  ; 2008-04-02 11:43:27)
+   module :     /dtd/xml/modulen/verwijzingen.mod                  (RevId: 1.8  ; 2008-01-28 16:43:48)
+   module :      /dtd/xml/modulen/afkortingen-publicaties.mod      (RevId: 1.6  ; 2005-05-30 16:54:43)
+   module :     /dtd/xml/modulen/binaire-objecten.mod              (RevId: 1.9  ; 2008-11-03 15:09:29)
+   module :    /dtd/xml/modulen/cals-tabel.mod                     (RevId: 1.8  ; 2009-05-13 12:57:44)
+   module :    /dtd/xml/modulen/inhoudsopgave.mod                  (RevId: 1.5  ; 2005-11-17 14:59:35)
+   module :    /dtd/xml/modulen/artikel.mod                        (RevId: 1.9  ; 2005-11-17 14:59:35)
+   module :    /dtd/xml/modulen/wettekst.mod                       (RevId: 1.12 ; 2008-09-10 11:56:14)
+   module :    /dtd/xml/modulen/aanhef.mod                         (RevId: 1.9  ; 2008-04-02 11:43:27)
+   module :    /dtd/xml/modulen/parlementair-geschiedenis.mod      (RevId: 1.5  ; 2005-11-17 15:18:30)
+   module :    /dtd/xml/modulen/bijlage-divisie.mod                (RevId: 1.11 ; 2009-05-18 10:06:01)
+   module :    /dtd/xml/modulen/ondertekening.mod                  (RevId: 1.5  ; 2007-11-13 10:24:11)
+   module :    /dtd/xml/modulen/lagere-regelgeving.mod             (RevId: 1.12 ; 2007-11-13 10:24:11)
+   module :    /dtd/xml/modulen/verdrag-tekst.mod                  (RevId: 1.7  ; 2005-11-17 14:59:35)
+   module :    /dtd/xml/modulen/wijzigingsartikel.mod              (RevId: 1.8  ; 2008-09-10 11:57:08)
+   module :    /dtd/xml/modulen/bwb-metadata.mod                   (RevId: 1.3  ; 2009-05-13 11:42:04)
+  
+  
+  (samengesteld op 08-06-2009 10:08:29)
+  
+  aangepast op 24-9-2009 ivm niet parseerbare content:
+  
+  wijzigingen:
+  verwijzing-id binnen intref toegevoegd
+  bin-id en url toegevoegd aan illustratie
+  status toegevoegd aan boek titeldeel afdeling hoofdstuk paragraaf en sub-paragraaf
+  circulaire.divisie, artikel en tekst optioneel gemaakt binnen circulaire.divisie
+  citeertitel optioneel gemaakt binnen wetgeving
+  bwb-id toegevoegd aan wetgeving
+  
+  aanvulling 13-10-2009
+  het attribuut compleet bij extref en binnewet is optioneel gemaakt
+  
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <xs:element name="aanhaling">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.aanhaling"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.aanhaling">
+    <xs:attribute name="bron"/>
+    <xs:attribute name="url"/>
+    <xs:attribute name="auteur"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="nadruk">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.nadruk"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.nadruk">
+    <xs:attribute name="type" default="cur">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vet"/>
+          <xs:enumeration value="cur"/>
+          <xs:enumeration value="vetcur"/>
+          <xs:enumeration value="rom"/>
+          <xs:enumeration value="ondlijn"/>
+          <xs:enumeration value="nonprop"/>
+          <xs:enumeration value="klkap"/>
+          <xs:enumeration value="kap"/>
+          <xs:enumeration value="halfvet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="sup" type="xs:string"/>
+  <xs:element name="inf" type="xs:string"/>
+  <xs:element name="ovl" type="xs:string"/>
+  <xs:element name="unl" type="xs:string"/>
+  <xs:element name="indexterm">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.indexterm"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.indexterm">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="term"/>
+    <xs:attribute name="indexgroep"/>
+  </xs:attributeGroup>
+  <xs:element name="omissie">
+    <xs:complexType>
+      <xs:attributeGroup ref="attlist.omissie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.omissie">
+    <xs:attribute name="reden"/>
+    <xs:attribute name="bron"/>
+    <xs:attribute name="plaatsing" default="inline">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="voetnoot"/>
+          <xs:enumeration value="inline"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="dfn">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="cit">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="afk">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.afk"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.afk">
+    <xs:attribute name="titel"/>
+  </xs:attributeGroup>
+  <xs:element name="al">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.al"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.al">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="al-groep">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="citaat">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+        <xs:element ref="definitielijst"/>
+        <xs:element ref="specificatielijst"/>
+        <xs:element ref="adres"/>
+        <xs:element ref="adreslijst"/>
+        <xs:element ref="plaatje"/>
+        <xs:element ref="formule"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.citaat"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.citaat">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="bron"/>
+    <xs:attribute name="url"/>
+    <xs:attribute name="auteur"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="kop">
+    <xs:complexType>
+      <xs:choice>
+        <xs:sequence>
+          <xs:element ref="label"/>
+          <xs:element minOccurs="0" ref="nr"/>
+          <xs:element minOccurs="0" ref="label"/>
+          <xs:element minOccurs="0" ref="titel"/>
+          <xs:element minOccurs="0" ref="subtitel"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="nr"/>
+          <xs:element minOccurs="0" ref="label"/>
+          <xs:element minOccurs="0" ref="titel"/>
+          <xs:element minOccurs="0" ref="subtitel"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="titel"/>
+          <xs:element minOccurs="0" ref="subtitel"/>
+        </xs:sequence>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.kop"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.kop">
+    <xs:attribute name="kopopmaak">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vet"/>
+          <xs:enumeration value="cur"/>
+          <xs:enumeration value="vetcur"/>
+          <xs:enumeration value="rom"/>
+          <xs:enumeration value="ondlijn"/>
+          <xs:enumeration value="nonprop"/>
+          <xs:enumeration value="klkap"/>
+          <xs:enumeration value="kap"/>
+          <xs:enumeration value="halfvet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="titel">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.titel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.titel">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="status" default="officieel">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="officieel"/>
+          <xs:enumeration value="redactioneel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="subtitel">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="nr">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="noot"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.nr"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.nr">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="status" default="officieel">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="officieel"/>
+          <xs:enumeration value="redactioneel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="label" type="xs:string"/>
+  <xs:element name="tussenkop">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.tussenkop"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.tussenkop">
+    <xs:attribute name="kopopmaak" default="cur">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vet"/>
+          <xs:enumeration value="cur"/>
+          <xs:enumeration value="vetcur"/>
+          <xs:enumeration value="rom"/>
+          <xs:enumeration value="ondlijn"/>
+          <xs:enumeration value="nonprop"/>
+          <xs:enumeration value="klkap"/>
+          <xs:enumeration value="kap"/>
+          <xs:enumeration value="halfvet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:attributeGroup>
+  <xs:element name="plaatje">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="illustratie"/>
+        <xs:element minOccurs="0" ref="bijschrift"/>
+        <xs:element minOccurs="0" ref="bron"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.plaatje"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.plaatje">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="formule">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="illustratie"/>
+        <xs:element minOccurs="0" ref="bijschrift"/>
+        <xs:element minOccurs="0" ref="bron"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.formule"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.formule">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="bijschrift">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.bijschrift"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.bijschrift">
+    <xs:attribute name="locatie" default="onder">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="boven"/>
+          <xs:enumeration value="onder"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="bron">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="al"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="datum">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="nadruk"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.datum"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.datum">
+    <xs:attribute name="isodatum" use="required"/>
+  </xs:attributeGroup>
+  <xs:element name="naamlijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="naam"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.naamlijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.naamlijst">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="start" default="1" type="xs:NMTOKEN"/>
+    <xs:attribute name="nr-sluiting" default="."/>
+    <xs:attribute name="type" default="expliciet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="a"/>
+          <xs:enumeration value="A"/>
+          <xs:enumeration value="I"/>
+          <xs:enumeration value="i"/>
+          <xs:enumeration value="bol"/>
+          <xs:enumeration value="vierkant"/>
+          <xs:enumeration value="cirkel"/>
+          <xs:enumeration value="mdash"/>
+          <xs:enumeration value="ndash"/>
+          <xs:enumeration value="asterisk"/>
+          <xs:enumeration value="ongemarkeerd"/>
+          <xs:enumeration value="expliciet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="naam">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="voornaam"/>
+        <xs:element ref="achternaam"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="voornaam" type="xs:string"/>
+  <xs:element name="achternaam" type="xs:string"/>
+  <xs:element name="lijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="li"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.lijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.lijst">
+    <xs:attribute name="type" default="expliciet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="a"/>
+          <xs:enumeration value="A"/>
+          <xs:enumeration value="I"/>
+          <xs:enumeration value="i"/>
+          <xs:enumeration value="bol"/>
+          <xs:enumeration value="vierkant"/>
+          <xs:enumeration value="cirkel"/>
+          <xs:enumeration value="mdash"/>
+          <xs:enumeration value="ndash"/>
+          <xs:enumeration value="asterisk"/>
+          <xs:enumeration value="ongemarkeerd"/>
+          <xs:enumeration value="expliciet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="start" default="1" type="xs:NMTOKEN"/>
+    <xs:attribute name="level" default="single">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="multiple"/>
+          <xs:enumeration value="single"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="nr-sluiting" default="."/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="li">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="li.nr"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.li"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.li">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="waarde" type="xs:NMTOKEN"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="li.nr" type="xs:string"/>
+  <xs:element name="definitielijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="definitie-item"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.definitielijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.definitielijst">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="plaatsing" default="inline">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="tabel"/>
+          <xs:enumeration value="inline"/>
+          <xs:enumeration value="tekst"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="type" default="ongemarkeerd">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="a"/>
+          <xs:enumeration value="A"/>
+          <xs:enumeration value="I"/>
+          <xs:enumeration value="i"/>
+          <xs:enumeration value="bol"/>
+          <xs:enumeration value="vierkant"/>
+          <xs:enumeration value="cirkel"/>
+          <xs:enumeration value="mdash"/>
+          <xs:enumeration value="ndash"/>
+          <xs:enumeration value="asterisk"/>
+          <xs:enumeration value="ongemarkeerd"/>
+          <xs:enumeration value="expliciet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="nr-sluiting" default="."/>
+  </xs:attributeGroup>
+  <xs:element name="definitie-item">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="li.nr"/>
+        <xs:element ref="term"/>
+        <xs:element ref="definitie"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.definitie-item"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.definitie-item">
+    <xs:attribute ref="xml:lang"/>
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:attributeGroup>
+  <xs:element name="term">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="definitie">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="specificatielijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="specificatie-item"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.specificatielijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.specificatielijst">
+    <xs:attribute ref="xml:lang"/>
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="plaatsing" default="tabel">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="tabel"/>
+          <xs:enumeration value="inline"/>
+          <xs:enumeration value="rechts"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="type" default="ongemarkeerd">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="a"/>
+          <xs:enumeration value="A"/>
+          <xs:enumeration value="I"/>
+          <xs:enumeration value="i"/>
+          <xs:enumeration value="bol"/>
+          <xs:enumeration value="vierkant"/>
+          <xs:enumeration value="cirkel"/>
+          <xs:enumeration value="mdash"/>
+          <xs:enumeration value="ndash"/>
+          <xs:enumeration value="asterisk"/>
+          <xs:enumeration value="ongemarkeerd"/>
+          <xs:enumeration value="expliciet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="nr-sluiting" default="."/>
+  </xs:attributeGroup>
+  <xs:element name="specificatie-item">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="li.nr"/>
+        <xs:element ref="specificatie"/>
+        <xs:element ref="waarde"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.specificatie-item"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.specificatie-item">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="specificatie">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="waarde">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="adreslijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="adres"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.adreslijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.adreslijst">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="start" default="1" type="xs:NMTOKEN"/>
+    <xs:attribute name="nr-sluiting" default="."/>
+    <xs:attribute name="type" default="expliciet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="a"/>
+          <xs:enumeration value="A"/>
+          <xs:enumeration value="I"/>
+          <xs:enumeration value="i"/>
+          <xs:enumeration value="bol"/>
+          <xs:enumeration value="vierkant"/>
+          <xs:enumeration value="cirkel"/>
+          <xs:enumeration value="mdash"/>
+          <xs:enumeration value="ndash"/>
+          <xs:enumeration value="asterisk"/>
+          <xs:enumeration value="ongemarkeerd"/>
+          <xs:enumeration value="expliciet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="adres">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="adresregel"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.adres"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.adres">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="adresregel">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.adresregel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.adresregel">
+    <xs:attribute name="type" default="onbepaald">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="organisatie"/>
+          <xs:enumeration value="afdeling"/>
+          <xs:enumeration value="naam"/>
+          <xs:enumeration value="straat"/>
+          <xs:enumeration value="postbus"/>
+          <xs:enumeration value="plaats"/>
+          <xs:enumeration value="land"/>
+          <xs:enumeration value="onbepaald"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="nootref">
+    <xs:complexType>
+      <xs:attributeGroup ref="attlist.nootref"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.nootref">
+    <xs:attribute name="refid" use="required" type="xs:IDREF"/>
+  </xs:attributeGroup>
+  <xs:element name="noot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="noot.nr"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element maxOccurs="unbounded" ref="noot.al"/>
+          <xs:element ref="naamlijst"/>
+          <xs:element ref="noot.lijst"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.noot"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.noot">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="type" default="voet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="voet"/>
+          <xs:enumeration value="marge"/>
+          <xs:enumeration value="eind"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="noot.al">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="noot.nr" type="xs:string"/>
+  <xs:element name="noot.lijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="noot.li"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.noot.lijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.noot.lijst">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="start" default="1" type="xs:NMTOKEN"/>
+    <xs:attribute name="level" default="single">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="multiple"/>
+          <xs:enumeration value="single"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="nr-sluiting" default="."/>
+    <xs:attribute name="type" default="expliciet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="a"/>
+          <xs:enumeration value="A"/>
+          <xs:enumeration value="I"/>
+          <xs:enumeration value="i"/>
+          <xs:enumeration value="bol"/>
+          <xs:enumeration value="vierkant"/>
+          <xs:enumeration value="cirkel"/>
+          <xs:enumeration value="mdash"/>
+          <xs:enumeration value="ndash"/>
+          <xs:enumeration value="asterisk"/>
+          <xs:enumeration value="ongemarkeerd"/>
+          <xs:enumeration value="expliciet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="noot.li">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="li.nr"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="noot.al"/>
+          <xs:element ref="noot.lijst"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.noot.li"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.noot.li">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="waarde" type="xs:NMTOKEN"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="intref">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.intref"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.intref">
+    <xs:attribute name="doc"/>
+    <xs:attribute name="struct"/>
+    <xs:attribute name="anker"/>
+    <xs:attribute name="verwijzing-id"/>
+    <xs:attribute name="reeks">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="Ag"/>
+          <xs:enumeration value="avv-cao"/>
+          <xs:enumeration value="Celex"/>
+          <xs:enumeration value="Han"/>
+          <xs:enumeration value="Jur"/>
+          <xs:enumeration value="Kst"/>
+          <xs:enumeration value="Kvr"/>
+          <xs:enumeration value="Kvr-a"/>
+          <xs:enumeration value="Nds"/>
+          <xs:enumeration value="OCWgk"/>
+          <xs:enumeration value="PbEG"/>
+          <xs:enumeration value="RB"/>
+          <xs:enumeration value="Rvs"/>
+          <xs:enumeration value="Stb"/>
+          <xs:enumeration value="Stcrt"/>
+          <xs:enumeration value="Trb"/>
+          <xs:enumeration value="Uitleg"/>
+          <xs:enumeration value="Verdrag"/>
+          <xs:enumeration value="Wet"/>
+          <xs:enumeration value="Supplement-Stcrt"/>
+          <xs:enumeration value="Infob"/>
+          <xs:enumeration value="Bulletin-des-Lois"/>
+          <xs:enumeration value="Vbbo"/>
+          <xs:enumeration value="Kk"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="rol"/>
+    <xs:attribute name="beschrijving"/>
+    <xs:attribute name="label"/>
+    <xs:attribute name="status" default="actief">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="slapend"/>
+          <xs:enumeration value="actief"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="extref-groep">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="ref-item"/>
+        <xs:element ref="extref"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="intref-groep">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="ref-item"/>
+        <xs:element ref="intref"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ref-item">
+    <xs:complexType>
+      <xs:attributeGroup ref="attlist.ref-item"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.ref-item">
+    <xs:attribute name="doc"/>
+    <xs:attribute name="struct"/>
+    <xs:attribute name="anker"/>
+    <xs:attribute name="reeks">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="Ag"/>
+          <xs:enumeration value="avv-cao"/>
+          <xs:enumeration value="Celex"/>
+          <xs:enumeration value="Han"/>
+          <xs:enumeration value="Jur"/>
+          <xs:enumeration value="Kst"/>
+          <xs:enumeration value="Kvr"/>
+          <xs:enumeration value="Kvr-a"/>
+          <xs:enumeration value="Nds"/>
+          <xs:enumeration value="OCWgk"/>
+          <xs:enumeration value="PbEG"/>
+          <xs:enumeration value="RB"/>
+          <xs:enumeration value="Rvs"/>
+          <xs:enumeration value="Stb"/>
+          <xs:enumeration value="Stcrt"/>
+          <xs:enumeration value="Trb"/>
+          <xs:enumeration value="Uitleg"/>
+          <xs:enumeration value="Verdrag"/>
+          <xs:enumeration value="Wet"/>
+          <xs:enumeration value="Supplement-Stcrt"/>
+          <xs:enumeration value="Infob"/>
+          <xs:enumeration value="Bulletin-des-Lois"/>
+          <xs:enumeration value="Vbbo"/>
+          <xs:enumeration value="Kk"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="rol"/>
+    <xs:attribute name="beschrijving"/>
+    <xs:attribute name="label"/>
+    <xs:attribute name="status" default="actief">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="slapend"/>
+          <xs:enumeration value="actief"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="extref">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.extref"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.extref">
+    <xs:attribute name="doc" use="required"/>
+    <xs:attribute name="struct"/>
+    <xs:attribute name="anker"/>
+    <xs:attribute name="reeks">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="Ag"/>
+          <xs:enumeration value="avv-cao"/>
+          <xs:enumeration value="Celex"/>
+          <xs:enumeration value="Han"/>
+          <xs:enumeration value="Jur"/>
+          <xs:enumeration value="Kst"/>
+          <xs:enumeration value="Kvr"/>
+          <xs:enumeration value="Kvr-a"/>
+          <xs:enumeration value="Nds"/>
+          <xs:enumeration value="OCWgk"/>
+          <xs:enumeration value="PbEG"/>
+          <xs:enumeration value="RB"/>
+          <xs:enumeration value="Rvs"/>
+          <xs:enumeration value="Stb"/>
+          <xs:enumeration value="Stcrt"/>
+          <xs:enumeration value="Trb"/>
+          <xs:enumeration value="Uitleg"/>
+          <xs:enumeration value="Verdrag"/>
+          <xs:enumeration value="Wet"/>
+          <xs:enumeration value="Supplement-Stcrt"/>
+          <xs:enumeration value="Infob"/>
+          <xs:enumeration value="Bulletin-des-Lois"/>
+          <xs:enumeration value="Vbbo"/>
+          <xs:enumeration value="Kk"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="rol"/>
+    <xs:attribute name="beschrijving"/>
+    <xs:attribute name="label"/>
+    <xs:attribute name="status" default="actief">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="slapend"/>
+          <xs:enumeration value="actief"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="compleet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ja"/>
+          <xs:enumeration value="nee"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="dossierref">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.dossierref"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.dossierref">
+    <xs:attribute name="dossier"/>
+  </xs:attributeGroup>
+  <xs:element name="illustratie">
+    <xs:complexType>
+      <xs:attributeGroup ref="attlist.illustratie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.illustratie">
+    <xs:attribute name="id"/>
+    <xs:attribute name="bin-id"/>
+    <xs:attribute name="url"/>
+    <xs:attribute name="naam" use="required"/>
+    <xs:attribute name="breedte"/>
+    <xs:attribute name="hoogte"/>
+    <xs:attribute name="rotatie"/>
+    <xs:attribute name="display" default="block">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="block"/>
+          <xs:enumeration value="inline"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="kleur" default="nee">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ja"/>
+          <xs:enumeration value="nee"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="formaat" default="png">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="eps"/>
+          <xs:enumeration value="tiff"/>
+          <xs:enumeration value="jpeg"/>
+          <xs:enumeration value="pdf"/>
+          <xs:enumeration value="gif"/>
+          <xs:enumeration value="ps"/>
+          <xs:enumeration value="png"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="type">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="foto"/>
+          <xs:enumeration value="tekst"/>
+          <xs:enumeration value="lijn"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="alt"/>
+    <xs:attribute name="xoffset"/>
+    <xs:attribute name="yoffset"/>
+    <xs:attribute name="schaal"/>
+    <xs:attribute name="uitlijning" default="start">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="start"/>
+          <xs:enumeration value="end"/>
+          <xs:enumeration value="center"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="resolutie" type="xs:NMTOKEN"/>
+  </xs:attributeGroup>
+  <xs:element name="table">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="title"/>
+        <xs:element maxOccurs="unbounded" ref="tgroup"/>
+        <xs:element minOccurs="0" ref="bron"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.table"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.table">
+    <xs:attribute name="colsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="pgwide" type="xs:NMTOKEN"/>
+    <xs:attribute name="rowsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="tabstyle"/>
+    <xs:attribute name="summary"/>
+    <xs:attribute name="frame">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="bottom"/>
+          <xs:enumeration value="topbot"/>
+          <xs:enumeration value="all"/>
+          <xs:enumeration value="sides"/>
+          <xs:enumeration value="none"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="orient">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="port"/>
+          <xs:enumeration value="land"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="title">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tgroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="colspec"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="spanspec"/>
+        <xs:element minOccurs="0" ref="thead"/>
+        <xs:element minOccurs="0" ref="tfoot"/>
+        <xs:element ref="tbody"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.tgroup"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.tgroup">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="cols" use="required" type="xs:NMTOKEN"/>
+    <xs:attribute name="colsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="rowsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="tgroupstyle"/>
+    <xs:attribute name="char" default=""/>
+    <xs:attribute name="charoff" default="50" type="xs:NMTOKEN"/>
+    <xs:attribute name="align" default="left">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="colspec">
+    <xs:complexType>
+      <xs:attributeGroup ref="attlist.colspec"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.colspec">
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff" type="xs:NMTOKEN"/>
+    <xs:attribute name="colname" type="xs:NMTOKEN"/>
+    <xs:attribute name="colnum" type="xs:NMTOKEN"/>
+    <xs:attribute name="colsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="colwidth"/>
+    <xs:attribute name="rowsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="spanspec">
+    <xs:complexType>
+      <xs:attributeGroup ref="attlist.spanspec"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.spanspec">
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff" type="xs:NMTOKEN"/>
+    <xs:attribute name="colsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="nameend" use="required" type="xs:NMTOKEN"/>
+    <xs:attribute name="namest" use="required" type="xs:NMTOKEN"/>
+    <xs:attribute name="rowsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="spanname" use="required" type="xs:NMTOKEN"/>
+    <xs:attribute name="align" default="center">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="thead">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="colspec"/>
+        <xs:element maxOccurs="unbounded" ref="row"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.thead"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.thead">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="valign" default="bottom">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="tfoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="colspec"/>
+        <xs:element maxOccurs="unbounded" ref="row"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.tfoot"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.tfoot">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="valign" default="top">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="tbody">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="row"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.tbody"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.tbody">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="valign" default="top">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="row">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="entry"/>
+        <xs:element ref="entrytbl"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.row"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.row">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="rowsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="valign">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="entry">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+        <xs:element ref="definitielijst"/>
+        <xs:element ref="specificatielijst"/>
+        <xs:element ref="adres"/>
+        <xs:element ref="adreslijst"/>
+        <xs:element ref="plaatje"/>
+        <xs:element ref="formule"/>
+        <xs:element ref="citaat"/>
+        <xs:element ref="tussenkop"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.entry"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.entry">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff" type="xs:NMTOKEN"/>
+    <xs:attribute name="colname" type="xs:NMTOKEN"/>
+    <xs:attribute name="colsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="morerows" default="0" type="xs:NMTOKEN"/>
+    <xs:attribute name="nameend" type="xs:NMTOKEN"/>
+    <xs:attribute name="namest" type="xs:NMTOKEN"/>
+    <xs:attribute name="rotate" default="0" type="xs:NMTOKEN"/>
+    <xs:attribute name="rowsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="spanname" type="xs:NMTOKEN"/>
+    <xs:attribute name="valign">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="top"/>
+          <xs:enumeration value="middle"/>
+          <xs:enumeration value="bottom"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="thscope">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="row"/>
+          <xs:enumeration value="rowgroup"/>
+          <xs:enumeration value="col"/>
+          <xs:enumeration value="colgroup"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="abbr"/>
+    <xs:attribute name="headers"/>
+  </xs:attributeGroup>
+  <xs:element name="entrytbl">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="colspec"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="spanspec"/>
+        <xs:element minOccurs="0" ref="thead"/>
+        <xs:element ref="tbody"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.entrytbl"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.entrytbl">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="char"/>
+    <xs:attribute name="charoff" type="xs:NMTOKEN"/>
+    <xs:attribute name="colname" type="xs:NMTOKEN"/>
+    <xs:attribute name="cols" use="required" type="xs:NMTOKEN"/>
+    <xs:attribute name="colsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="nameend" type="xs:NMTOKEN"/>
+    <xs:attribute name="namest" type="xs:NMTOKEN"/>
+    <xs:attribute name="rowsep" type="xs:NMTOKEN"/>
+    <xs:attribute name="spanname" type="xs:NMTOKEN"/>
+    <xs:attribute name="tgroupstyle"/>
+    <xs:attribute name="align">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="left"/>
+          <xs:enumeration value="right"/>
+          <xs:enumeration value="center"/>
+          <xs:enumeration value="justify"/>
+          <xs:enumeration value="char"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="officiele-inhoudsopgave">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="kop"/>
+        <xs:choice minOccurs="0">
+          <xs:element maxOccurs="unbounded" ref="inhoud"/>
+          <xs:element ref="inhoud-groep"/>
+          <xs:element ref="table"/>
+          <xs:element maxOccurs="unbounded" ref="al"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.officiele-inhoudsopgave"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.officiele-inhoudsopgave">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="nogniet"/>
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="code"/>
+    <xs:attribute name="type"/>
+  </xs:attributeGroup>
+  <xs:element name="inhoud">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="nr"/>
+        <xs:element ref="titel"/>
+        <xs:element minOccurs="0" ref="subtitel"/>
+        <xs:element minOccurs="0" ref="paginanr"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="inhoud-groep">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="inhoud-groep"/>
+        <xs:element ref="inhoud"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="paginanr" type="xs:string"/>
+  <xs:element name="artikel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="lid"/>
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="wetcitaat"/>
+          <xs:element ref="binnenwet"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="artikel.toelichting"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.artikel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.artikel">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="nogniet"/>
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="code"/>
+    <xs:attribute name="type"/>
+  </xs:attributeGroup>
+  <xs:element name="enig-artikel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element maxOccurs="unbounded" ref="lid"/>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="al"/>
+            <xs:element ref="lijst"/>
+            <xs:element ref="definitielijst"/>
+            <xs:element ref="specificatielijst"/>
+            <xs:element ref="adres"/>
+            <xs:element ref="adreslijst"/>
+            <xs:element ref="plaatje"/>
+            <xs:element ref="formule"/>
+            <xs:element ref="citaat"/>
+            <xs:element ref="tussenkop"/>
+            <xs:element ref="table"/>
+            <xs:element ref="wetcitaat"/>
+            <xs:element ref="binnenwet"/>
+          </xs:choice>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="artikel.toelichting"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.enig-artikel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.enig-artikel">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="nogniet"/>
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="code"/>
+    <xs:attribute name="type"/>
+  </xs:attributeGroup>
+  <xs:element name="lid">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="lidnr"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="wetcitaat"/>
+          <xs:element ref="binnenwet"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.lid"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.lid">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="lidnr">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.lidnr"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.lidnr">
+    <xs:attribute name="status" default="officieel">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="officieel"/>
+          <xs:enumeration value="redactioneel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="artikel.toelichting">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+        <xs:element ref="definitielijst"/>
+        <xs:element ref="specificatielijst"/>
+        <xs:element ref="adres"/>
+        <xs:element ref="adreslijst"/>
+        <xs:element ref="plaatje"/>
+        <xs:element ref="formule"/>
+        <xs:element ref="citaat"/>
+        <xs:element ref="tussenkop"/>
+        <xs:element ref="table"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.artikel.toelichting"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.artikel.toelichting">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="wetcitaat">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="kop"/>
+        <xs:choice>
+          <xs:element maxOccurs="unbounded" ref="citaat-artikel"/>
+          <xs:element maxOccurs="unbounded" ref="lid"/>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="al"/>
+            <xs:element ref="lijst"/>
+            <xs:element ref="definitielijst"/>
+            <xs:element ref="specificatielijst"/>
+            <xs:element ref="adres"/>
+            <xs:element ref="adreslijst"/>
+            <xs:element ref="plaatje"/>
+            <xs:element ref="formule"/>
+            <xs:element ref="citaat"/>
+            <xs:element ref="tussenkop"/>
+            <xs:element ref="table"/>
+          </xs:choice>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.wetcitaat"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wetcitaat">
+    <xs:attribute name="titel"/>
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="doc"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="citaat-artikel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="lid"/>
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="citaat-artikel"/>
+          <xs:element ref="omissie"/>
+          <xs:element ref="binnenwet"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="artikel.toelichting"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.citaat-artikel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.citaat-artikel">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="doc"/>
+    <xs:attribute name="anker" type="xs:NMTOKEN"/>
+    <xs:attribute name="struct"/>
+  </xs:attributeGroup>
+  <xs:element name="wettekst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="officiele-inhoudsopgave"/>
+        <xs:choice>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="al"/>
+            <xs:element ref="lijst"/>
+            <xs:element ref="al-groep"/>
+          </xs:choice>
+          <xs:choice>
+            <xs:choice>
+              <xs:element maxOccurs="unbounded" ref="boek"/>
+              <xs:element maxOccurs="unbounded" ref="deel"/>
+              <xs:element ref="enig-artikel"/>
+            </xs:choice>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element ref="hoofdstuk"/>
+              <xs:element ref="titeldeel"/>
+              <xs:element ref="afdeling"/>
+              <xs:element ref="paragraaf"/>
+              <xs:element ref="artikel"/>
+              <xs:element ref="wijzig-artikel"/>
+            </xs:choice>
+          </xs:choice>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="boek">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="officiele-inhoudsopgave"/>
+        <xs:element minOccurs="0" ref="structuurtekst"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="hoofdstuk"/>
+          <xs:element ref="titeldeel"/>
+          <xs:element ref="afdeling"/>
+          <xs:element ref="paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.boek"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.boek">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status"/>
+  </xs:attributeGroup>
+  <xs:element name="deel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="officiele-inhoudsopgave"/>
+        <xs:element minOccurs="0" ref="structuurtekst"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="hoofdstuk"/>
+          <xs:element ref="titeldeel"/>
+          <xs:element ref="afdeling"/>
+          <xs:element ref="paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.deel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.deel">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status"/>
+  </xs:attributeGroup>
+  <xs:element name="hoofdstuk">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="structuurtekst"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="titeldeel"/>
+          <xs:element ref="afdeling"/>
+          <xs:element ref="paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.hoofdstuk"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.hoofdstuk">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status"/>
+  </xs:attributeGroup>
+  <xs:element name="titeldeel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="structuurtekst"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="hoofdstuk"/>
+          <xs:element ref="afdeling"/>
+          <xs:element ref="paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.titeldeel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.titeldeel">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status"/>
+  </xs:attributeGroup>
+  <xs:element name="afdeling">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="structuurtekst"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="hoofdstuk"/>
+          <xs:element ref="paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.afdeling"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.afdeling">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status"/>
+  </xs:attributeGroup>
+  <xs:element name="paragraaf">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="structuurtekst"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="afdeling"/>
+          <xs:element ref="sub-paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.paragraaf"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.paragraaf">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status"/>
+  </xs:attributeGroup>
+  <xs:element name="sub-paragraaf">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="structuurtekst"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="artikel"/>
+          <xs:element ref="sub-paragraaf"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.sub-paragraaf"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.sub-paragraaf">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status"/>
+  </xs:attributeGroup>
+  <xs:element name="structuurtekst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="al-groep"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.structuurtekst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.structuurtekst">
+    <xs:attribute name="id"/>
+  </xs:attributeGroup>
+  <xs:element name="wetsluiting">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="slotformulering"/>
+        <xs:element minOccurs="0" ref="gegeven"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="ondertekening"/>
+        <xs:element minOccurs="0" ref="uitgifte"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.wetsluiting"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wetsluiting">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+          <xs:enumeration value="nogniet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="gegeven">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="label"/>
+        <xs:element ref="dagtekening"/>
+        <xs:element minOccurs="0" ref="koning"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="koning" type="xs:string"/>
+  <xs:element name="uitgifte">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="uitgegeven"/>
+        <xs:element ref="datum"/>
+        <xs:element ref="ondertekening"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="uitgegeven" type="xs:string"/>
+  <xs:element name="citeertitel">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.citeertitel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.citeertitel">
+    <xs:attribute name="status" default="officieel">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="officieel"/>
+          <xs:enumeration value="redactioneel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="id"/>
+  </xs:attributeGroup>
+  <xs:element name="aanhef">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="context"/>
+        <xs:choice minOccurs="0">
+          <xs:element maxOccurs="unbounded" ref="wie"/>
+          <xs:element maxOccurs="unbounded" ref="wij"/>
+        </xs:choice>
+        <xs:choice minOccurs="0">
+          <xs:element ref="considerans"/>
+          <xs:element ref="preambule"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="afkondiging"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.aanhef"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.aanhef">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="preambule">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="wie" type="xs:string"/>
+  <xs:element name="wij" type="xs:string"/>
+  <xs:element name="considerans">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="considerans.al"/>
+        <xs:element ref="considerans.lijst"/>
+        <xs:element ref="tussenkop"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.considerans"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.considerans">
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:attributeGroup>
+  <xs:element name="considerans.al">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="eg-richtlijn"/>
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.considerans.al"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.considerans.al">
+    <xs:attribute name="bevat">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="grondslag"/>
+          <xs:enumeration value="voordracht"/>
+          <xs:enumeration value="gehoord"/>
+          <xs:enumeration value="gezien"/>
+          <xs:enumeration value="overeenstemmend"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="eg-richtlijn">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="considerans.lijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="li"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.considerans.lijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.considerans.lijst">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="start" type="xs:NMTOKEN"/>
+    <xs:attribute name="bevat">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="grondslag"/>
+          <xs:enumeration value="voordracht"/>
+          <xs:enumeration value="gehoord"/>
+          <xs:enumeration value="gezien"/>
+          <xs:enumeration value="overeenstemmend"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="type" default="expliciet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="1"/>
+          <xs:enumeration value="a"/>
+          <xs:enumeration value="A"/>
+          <xs:enumeration value="I"/>
+          <xs:enumeration value="i"/>
+          <xs:enumeration value="bol"/>
+          <xs:enumeration value="vierkant"/>
+          <xs:enumeration value="cirkel"/>
+          <xs:enumeration value="mdash"/>
+          <xs:enumeration value="ndash"/>
+          <xs:enumeration value="asterisk"/>
+          <xs:enumeration value="ongemarkeerd"/>
+          <xs:enumeration value="expliciet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="afkondiging">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="context">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="context.al"/>
+        <xs:element ref="context.lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="context.al">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+        <xs:element ref="redactie"/>
+        <xs:element ref="tekstcorrectie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.context.al"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.context.al">
+    <xs:attribute name="type">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="aan-wie"/>
+          <xs:enumeration value="in-afschrift-aan"/>
+          <xs:enumeration value="kenmerk"/>
+          <xs:enumeration value="origine"/>
+          <xs:enumeration value="datum"/>
+          <xs:enumeration value="informatie"/>
+          <xs:enumeration value="relatie"/>
+          <xs:enumeration value="onbepaald"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="context.lijst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="li"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.context.lijst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.context.lijst">
+    <xs:attribute name="type">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="aan-wie"/>
+          <xs:enumeration value="in-afschrift-aan"/>
+          <xs:enumeration value="kenmerk"/>
+          <xs:enumeration value="origine"/>
+          <xs:enumeration value="datum"/>
+          <xs:enumeration value="informatie"/>
+          <xs:enumeration value="relatie"/>
+          <xs:enumeration value="onbepaald"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="parlementair">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="parlementair.al"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.parlementair"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.parlementair">
+    <xs:attribute name="id"/>
+  </xs:attributeGroup>
+  <xs:element name="parlementair.al">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="dossierref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="nadruk"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="bijlage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="kop"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="divisie"/>
+          <xs:element ref="wetcitaat"/>
+          <xs:element ref="model"/>
+          <xs:element ref="officiele-inhoudsopgave"/>
+          <xs:element ref="artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="bijlage-sluiting"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.bijlage"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.bijlage">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="nogniet"/>
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="bijlage-sluiting">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="dagtekening"/>
+        <xs:element minOccurs="0" ref="slotformulering"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="gegeven"/>
+          <xs:element ref="ondertekening"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="uitgifte"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="divisie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="divisie"/>
+          <xs:element ref="wetcitaat"/>
+          <xs:element ref="model"/>
+          <xs:element ref="artikel"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.divisie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.divisie">
+    <xs:attribute name="id"/>
+    <xs:attribute name="opmaak" default="default">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="default"/>
+          <xs:enumeration value="niet-inspringen"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="slotformulering">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="al"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ondertekening">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="functie"/>
+        <xs:element ref="organisatie"/>
+        <xs:element ref="politiek"/>
+        <xs:element ref="naam"/>
+        <xs:element ref="deze"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dagtekening">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0">
+          <xs:element ref="plaats"/>
+          <xs:element ref="actie"/>
+        </xs:choice>
+        <xs:element ref="datum"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="plaats">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="omissie"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="deze" type="xs:string"/>
+  <xs:element name="organisatie">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.organisatie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.organisatie">
+    <xs:attribute name="afkorting"/>
+  </xs:attributeGroup>
+  <xs:element name="politiek" type="xs:string"/>
+  <xs:element name="functie" type="xs:string"/>
+  <xs:element name="actie" type="xs:string"/>
+  <xs:element name="regeling-tekst">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="enig-artikel"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="hoofdstuk"/>
+          <xs:element ref="paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+        <xs:element ref="tekst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tekst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="wetcitaat"/>
+          <xs:element ref="al-groep"/>
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.tekst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.tekst">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="nogniet"/>
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="code"/>
+    <xs:attribute name="type"/>
+  </xs:attributeGroup>
+  <xs:element name="regeling-sluiting">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="slotformulering"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="gegeven"/>
+          <xs:element ref="ondertekenaar"/>
+          <xs:element ref="ondertekening"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="uitgifte"/>
+        <xs:element minOccurs="0" ref="goedkeuring"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.regeling-sluiting"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.regeling-sluiting">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+          <xs:enumeration value="nogniet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="circulaire-sluiting">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="slotformulering"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="gegeven"/>
+          <xs:element ref="ondertekenaar"/>
+          <xs:element ref="ondertekening"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="uitgifte"/>
+        <xs:element minOccurs="0" ref="goedkeuring"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.circulaire-sluiting"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.circulaire-sluiting">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+          <xs:enumeration value="nogniet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="goedkeuring">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="al"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ondertekenaar">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="ondertekening"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="circulaire-tekst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="kop"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="circulaire.divisie"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="tekst"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="circulaire.divisie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="kop"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="circulaire.divisie"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="tekst"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.circulaire.divisie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.circulaire.divisie">
+    <xs:attribute name="id"/>
+    <xs:attribute name="opmaak" default="default">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="default"/>
+          <xs:enumeration value="niet-inspringen"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="aan-wie" type="xs:string"/>
+  <xs:element name="in-afschrift-aan" type="xs:string"/>
+  <xs:element name="kenmerk" type="xs:string"/>
+  <xs:element name="origine" type="xs:string"/>
+  <xs:element name="verdragspartijen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="partij-gegevens"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="partij-gegevens">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="verdragspartij"/>
+        <xs:element ref="datum-ratificatie"/>
+        <xs:element minOccurs="0" ref="voorbehouden"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="verdragspartij">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="noot"/>
+        <xs:element ref="nadruk"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="datum-ratificatie">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.datum-ratificatie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.datum-ratificatie">
+    <xs:attribute name="isodatum" use="required"/>
+  </xs:attributeGroup>
+  <xs:element name="voorbehouden">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="vrije-tekst">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="artikel"/>
+        <xs:element ref="tekst"/>
+        <xs:element ref="divisie"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="verdragtekst">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="aanhef"/>
+        <xs:choice>
+          <xs:element ref="wettekst"/>
+          <xs:element ref="vrije-tekst"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="wetsluiting"/>
+        <xs:element minOccurs="0" ref="ondertekening"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.verdragtekst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.verdragtekst">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="wijzig-artikel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="wat"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+        </xs:choice>
+        <xs:choice minOccurs="0">
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="wijzig-lid-groep"/>
+            <xs:element ref="wijzig-lid"/>
+          </xs:choice>
+          <xs:element maxOccurs="unbounded" ref="wijziging"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.wijzig-artikel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wijzig-artikel">
+    <xs:attribute name="id"/>
+    <xs:attribute name="status" default="goed">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="nogniet"/>
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="goed"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="code"/>
+    <xs:attribute name="type"/>
+  </xs:attributeGroup>
+  <xs:element name="wijzig-lid-groep">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="wijzig-lid-groep"/>
+          <xs:element ref="wijzig-lid"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="wat">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+        <xs:element ref="aanhaling"/>
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="dossierref"/>
+        <xs:element ref="indexterm"/>
+        <xs:element ref="dfn"/>
+        <xs:element ref="cit"/>
+        <xs:element ref="afk"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.wat"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wat">
+    <xs:attribute name="type">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="wijziging"/>
+          <xs:enumeration value="ingetrokken"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="wijzig-lid">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="lidnr"/>
+        <xs:element minOccurs="0" ref="wat"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="wijziging"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.wijzig-lid"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wijzig-lid">
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:attributeGroup>
+  <xs:element name="wijziging">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="nr"/>
+        <xs:element minOccurs="0" ref="wat"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="artikeltekst"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="artikelkop"/>
+          <xs:element ref="wijzig-artikel"/>
+          <xs:element ref="wijzig-lid"/>
+          <xs:element ref="wijzig-divisie"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="wijzig-divisie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="kop"/>
+        <xs:element minOccurs="0" ref="wat"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="wijzig-divisie"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="enig-artikel"/>
+          <xs:element ref="wetcitaat"/>
+          <xs:element ref="al-groep"/>
+          <xs:element ref="divisie"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.wijzig-divisie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wijzig-divisie">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="soort" default="onbekend">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="paragraaf"/>
+          <xs:enumeration value="hoofdstuk"/>
+          <xs:enumeration value="afdeling"/>
+          <xs:enumeration value="titeldeel"/>
+          <xs:enumeration value="sub-paragraaf"/>
+          <xs:enumeration value="boek"/>
+          <xs:enumeration value="deel"/>
+          <xs:enumeration value="bijlage"/>
+          <xs:enumeration value="onbekend"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="opmaak" default="default">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="default"/>
+          <xs:enumeration value="niet-inspringen"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="artikelkop">
+    <xs:complexType>
+      <xs:choice>
+        <xs:sequence>
+          <xs:element ref="label"/>
+          <xs:element minOccurs="0" ref="nr"/>
+          <xs:element minOccurs="0" ref="label"/>
+          <xs:element minOccurs="0" ref="titel"/>
+          <xs:element minOccurs="0" ref="subtitel"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="nr"/>
+          <xs:element minOccurs="0" ref="label"/>
+          <xs:element minOccurs="0" ref="titel"/>
+          <xs:element minOccurs="0" ref="subtitel"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element ref="titel"/>
+          <xs:element minOccurs="0" ref="subtitel"/>
+        </xs:sequence>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.artikelkop"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.artikelkop">
+    <xs:attribute name="kopopmaak">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vet"/>
+          <xs:enumeration value="cur"/>
+          <xs:enumeration value="vetcur"/>
+          <xs:enumeration value="rom"/>
+          <xs:enumeration value="ondlijn"/>
+          <xs:enumeration value="nonprop"/>
+          <xs:enumeration value="klkap"/>
+          <xs:enumeration value="kap"/>
+          <xs:enumeration value="halfvet"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="artikeltekst">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="lid"/>
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+        <xs:element ref="definitielijst"/>
+        <xs:element ref="specificatielijst"/>
+        <xs:element ref="adres"/>
+        <xs:element ref="adreslijst"/>
+        <xs:element ref="plaatje"/>
+        <xs:element ref="formule"/>
+        <xs:element ref="citaat"/>
+        <xs:element ref="tussenkop"/>
+        <xs:element ref="table"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.artikeltekst"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.artikeltekst">
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:attributeGroup>
+  <xs:element name="brondata">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="voorbereiding"/>
+        <xs:element ref="oorspronkelijk"/>
+        <xs:element minOccurs="0" ref="inwerkingtreding"/>
+        <xs:element minOccurs="0" ref="voorlopigetoepassing"/>
+        <xs:element minOccurs="0" ref="aanhangig"/>
+        <xs:element minOccurs="0" ref="opmerkingen-inhoud"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="voorlopigetoepassing">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="publicatie"/>
+        <xs:element ref="voorlopigetoepassing.datum"/>
+        <xs:element minOccurs="0" ref="beschrijving-voorlopigetoepassing"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="beschrijving-voorlopigetoepassing">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="voorlopigetoepassing.datum">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.voorlopigetoepassing.datum"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.voorlopigetoepassing.datum">
+    <xs:attribute name="isodatum"/>
+  </xs:attributeGroup>
+  <xs:element name="opmerkingen-inhoud">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="delegatie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="wetverwijzing"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="oorspronkelijk">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="publicatie"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="juncto"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="juncto">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="publicatie"/>
+        <xs:element minOccurs="0" ref="gevolg-juncto"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="juncto"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="gevolg-juncto">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="voorbereiding">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="dossierref"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="gewijzigd-door"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="aanhangig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="dossierref"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="gewijzigd-door"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="gewijzigd-door">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="dossierref"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="inwerkingtreding">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="publicatie"/>
+        <xs:choice>
+          <xs:sequence>
+            <xs:element ref="inwerkingtreding.datum"/>
+            <xs:element minOccurs="0" ref="beschrijving-inwerking"/>
+          </xs:sequence>
+          <xs:element ref="beschrijving-inwerking"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="terugwerkend.datum"/>
+        <xs:element minOccurs="0" ref="betreft-onderdelen"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="juncto"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="beschrijving-inwerking">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="betreft-onderdelen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="al"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="inwerkingtreding.datum">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.inwerkingtreding.datum"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.inwerkingtreding.datum">
+    <xs:attribute name="isodatum"/>
+  </xs:attributeGroup>
+  <xs:element name="terugwerkende-kracht-data">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="terugwerkende-kracht"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="terugwerkende-kracht">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="terugwerkend.datum"/>
+        <xs:element ref="terugwerkende-kracht-opmerkingen"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="terugwerkende-kracht-opmerkingen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="gegenereerde-tekst"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="lid"/>
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+          <xs:element ref="divisie"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="terugwerkend.datum">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.terugwerkend.datum"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.terugwerkend.datum">
+    <xs:attribute name="datum-scope" default="tot-en-met">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="tot"/>
+          <xs:enumeration value="tot-en-met"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="isodatum"/>
+  </xs:attributeGroup>
+  <xs:element name="wetgeving">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="publicatie"/>
+        <xs:element minOccurs="0" ref="verdragspartijen"/>
+        <xs:element minOccurs="0" ref="geschiedenis"/>
+        <xs:element minOccurs="0" ref="commentaar-wetgeving"/>
+        <xs:element minOccurs="0" ref="parlementair"/>
+        <xs:element minOccurs="0" ref="origine"/>
+        <xs:element minOccurs="0" ref="eerst-verantwoordelijk"/>
+        <xs:element minOccurs="0" ref="grondslagen"/>
+        <xs:choice minOccurs="0">
+          <xs:element maxOccurs="unbounded" ref="vertaling-van"/>
+          <xs:element ref="vertaald-door"/>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="totstandkoming"/>
+        <xs:element minOccurs="0" ref="alias-titels"/>
+        <xs:element minOccurs="0" ref="materiele-uitwerkingtreding.datum"/>
+        <xs:element ref="intitule"/>
+        <xs:element minOccurs="0" ref="citeertitel"/>
+        <xs:choice>
+          <xs:element ref="wet-besluit"/>
+          <xs:element ref="regeling"/>
+          <xs:element ref="circulaire"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="verdrag"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.wetgeving"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wetgeving">
+    <xs:attribute name="id" use="required"/>
+    <xs:attribute name="bwb-id"/>
+    <xs:attribute name="dtdversie" default="2.0">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="2.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="soort" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="wet"/>
+          <xs:enumeration value="besluit"/>
+          <xs:enumeration value="ministeriele-regeling"/>
+          <xs:enumeration value="KB"/>
+          <xs:enumeration value="AMvB"/>
+          <xs:enumeration value="beschikking"/>
+          <xs:enumeration value="circulaire"/>
+          <xs:enumeration value="rijkswet"/>
+          <xs:enumeration value="rijksKB"/>
+          <xs:enumeration value="rijksAMvB"/>
+          <xs:enumeration value="rijks-regeling"/>
+          <xs:enumeration value="verdrag"/>
+          <xs:enumeration value="reglement"/>
+          <xs:enumeration value="aanwijzing"/>
+          <xs:enumeration value="verordening"/>
+          <xs:enumeration value="richtlijn-eg"/>
+          <xs:enumeration value="beleidsregel"/>
+          <xs:enumeration value="zbo"/>
+          <xs:enumeration value="pbo"/>
+          <xs:enumeration value="overige"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="verdrag">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="verdragtekst"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.verdrag"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.verdrag">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+    <xs:attribute name="tekst" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="authentiek"/>
+          <xs:enumeration value="vertaling"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="eerst-verantwoordelijk">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="afkorting"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="vertaling-van">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.vertaling-van"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.vertaling-van">
+    <xs:attribute name="doc" use="required" type="xs:NMTOKEN"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="vertaald-door">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.vertaald-door"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.vertaald-door">
+    <xs:attribute name="doc" use="required" type="xs:NMTOKEN"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="totstandkoming">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="plaats"/>
+        <xs:element ref="datum"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="grondslagen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="grondslag"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.grondslagen"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.grondslagen">
+    <xs:attribute name="id"/>
+  </xs:attributeGroup>
+  <xs:element name="grondslag">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.grondslag"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.grondslag">
+    <xs:attribute name="type" default="grondslag">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="grondslag"/>
+          <xs:enumeration value="bevoegdheid-wettelijk"/>
+          <xs:enumeration value="bevoegdheid-redactioneel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="wetverwijzing">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.wetverwijzing"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.wetverwijzing">
+    <xs:attribute name="doc" use="required"/>
+    <xs:attribute name="beschrijving"/>
+  </xs:attributeGroup>
+  <xs:element name="alias-titels">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="alias-titel"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="afkorting"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="alias-titel">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.alias-titel"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.alias-titel">
+    <xs:attribute name="status" default="redactioneel">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="officieel"/>
+          <xs:enumeration value="redactioneel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="afkorting">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.afkorting"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.afkorting">
+    <xs:attribute name="status" default="officieel">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="officieel"/>
+          <xs:enumeration value="redactioneel"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="publicatie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="publicatiejaar"/>
+        <xs:element ref="publicatienr"/>
+        <xs:element minOccurs="0" ref="uitgiftedatum"/>
+        <xs:element minOccurs="0" ref="ondertekeningsdatum"/>
+        <xs:element minOccurs="0" ref="kenmerk"/>
+        <xs:element minOccurs="0" ref="dossierref"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="rectificatie"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.publicatie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.publicatie">
+    <xs:attribute name="doc"/>
+    <xs:attribute name="pskey"/>
+    <xs:attribute name="soort" default="Stb">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="Ag"/>
+          <xs:enumeration value="avv-cao"/>
+          <xs:enumeration value="Celex"/>
+          <xs:enumeration value="Han"/>
+          <xs:enumeration value="Jur"/>
+          <xs:enumeration value="Kst"/>
+          <xs:enumeration value="Kvr"/>
+          <xs:enumeration value="Kvr-a"/>
+          <xs:enumeration value="Nds"/>
+          <xs:enumeration value="OCWgk"/>
+          <xs:enumeration value="PbEG"/>
+          <xs:enumeration value="RB"/>
+          <xs:enumeration value="Rvs"/>
+          <xs:enumeration value="Stb"/>
+          <xs:enumeration value="Stcrt"/>
+          <xs:enumeration value="Trb"/>
+          <xs:enumeration value="Uitleg"/>
+          <xs:enumeration value="Verdrag"/>
+          <xs:enumeration value="Wet"/>
+          <xs:enumeration value="Supplement-Stcrt"/>
+          <xs:enumeration value="Infob"/>
+          <xs:enumeration value="Bulletin-des-Lois"/>
+          <xs:enumeration value="Vbbo"/>
+          <xs:enumeration value="Kk"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="effect">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vernummering"/>
+          <xs:enumeration value="vernummerd-wijziging"/>
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="nieuw"/>
+          <xs:enumeration value="wijziging"/>
+          <xs:enumeration value="tekstplaatsing"/>
+          <xs:enumeration value="tekstplaatsing-vernummering"/>
+          <xs:enumeration value="tekstplaatsing-wijziging"/>
+          <xs:enumeration value="eerste-lezing"/>
+          <xs:enumeration value="intrekking-regeling"/>
+          <xs:enumeration value="nieuwe-regeling"/>
+          <xs:enumeration value="herplaatsing"/>
+          <xs:enumeration value="vertaling"/>
+          <xs:enumeration value="structuurwijziging"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="publicatiejaar" type="xs:string"/>
+  <xs:element name="uitgiftedatum">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.uitgiftedatum"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.uitgiftedatum">
+    <xs:attribute name="isodatum" use="required"/>
+  </xs:attributeGroup>
+  <xs:element name="ondertekeningsdatum">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.ondertekeningsdatum"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.ondertekeningsdatum">
+    <xs:attribute name="isodatum" use="required"/>
+  </xs:attributeGroup>
+  <xs:element name="publicatienr" type="xs:string"/>
+  <xs:element name="rectificatie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="publicatie"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="commentaar-wetgeving">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="geschiedenis">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="brondata"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="intitule">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+        <xs:element ref="nootref"/>
+        <xs:element ref="noot"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.intitule"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.intitule">
+    <xs:attribute name="id"/>
+  </xs:attributeGroup>
+  <xs:element name="wet-besluit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="aanhef"/>
+        <xs:element ref="wettekst"/>
+        <xs:element minOccurs="0" ref="wetsluiting"/>
+        <xs:element minOccurs="0" ref="officiele-inhoudsopgave"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="bijlage"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="redactie">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="intref"/>
+        <xs:element ref="extref"/>
+        <xs:element ref="extref-groep"/>
+        <xs:element ref="intref-groep"/>
+        <xs:element ref="nadruk"/>
+        <xs:element ref="sup"/>
+        <xs:element ref="inf"/>
+        <xs:element ref="ovl"/>
+        <xs:element ref="unl"/>
+        <xs:element ref="omissie"/>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.redactie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.redactie">
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="type" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervanging"/>
+          <xs:enumeration value="extra"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="tekstcorrectie">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.tekstcorrectie"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.tekstcorrectie">
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:attributeGroup>
+  <xs:element name="model">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="kop"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="al"/>
+          <xs:element ref="lijst"/>
+          <xs:element ref="definitielijst"/>
+          <xs:element ref="specificatielijst"/>
+          <xs:element ref="adres"/>
+          <xs:element ref="adreslijst"/>
+          <xs:element ref="plaatje"/>
+          <xs:element ref="formule"/>
+          <xs:element ref="citaat"/>
+          <xs:element ref="tussenkop"/>
+          <xs:element ref="table"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="regeling">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="officiele-inhoudsopgave"/>
+        <xs:element ref="aanhef"/>
+        <xs:element ref="regeling-tekst"/>
+        <xs:element minOccurs="0" ref="regeling-sluiting"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="bijlage"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="circulaire">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="circulaire.aanhef"/>
+        <xs:element ref="circulaire-tekst"/>
+        <xs:element minOccurs="0" ref="circulaire-sluiting"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="bijlage"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="circulaire.aanhef">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="context"/>
+        <xs:element minOccurs="0" ref="wie"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="aan-wie"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="in-afschrift-aan"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="al"/>
+        <xs:element minOccurs="0" ref="meta-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.circulaire.aanhef"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.circulaire.aanhef">
+    <xs:attribute name="id"/>
+    <xs:attribute ref="xml:lang"/>
+  </xs:attributeGroup>
+  <xs:element name="binnenwet">
+    <xs:complexType>
+      <xs:choice>
+        <xs:choice>
+          <xs:element maxOccurs="unbounded" ref="boek"/>
+          <xs:element maxOccurs="unbounded" ref="deel"/>
+          <xs:element ref="enig-artikel"/>
+        </xs:choice>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="hoofdstuk"/>
+          <xs:element ref="titeldeel"/>
+          <xs:element ref="afdeling"/>
+          <xs:element ref="paragraaf"/>
+          <xs:element ref="artikel"/>
+          <xs:element ref="wijzig-artikel"/>
+        </xs:choice>
+      </xs:choice>
+      <xs:attributeGroup ref="attlist.binnenwet"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.binnenwet">
+    <xs:attribute name="doc" use="required"/>
+    <xs:attribute name="struct"/>
+    <xs:attribute name="anker"/>
+    <xs:attribute name="reeks">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="Ag"/>
+          <xs:enumeration value="avv-cao"/>
+          <xs:enumeration value="Celex"/>
+          <xs:enumeration value="Han"/>
+          <xs:enumeration value="Jur"/>
+          <xs:enumeration value="Kst"/>
+          <xs:enumeration value="Kvr"/>
+          <xs:enumeration value="Kvr-a"/>
+          <xs:enumeration value="Nds"/>
+          <xs:enumeration value="OCWgk"/>
+          <xs:enumeration value="PbEG"/>
+          <xs:enumeration value="RB"/>
+          <xs:enumeration value="Rvs"/>
+          <xs:enumeration value="Stb"/>
+          <xs:enumeration value="Stcrt"/>
+          <xs:enumeration value="Trb"/>
+          <xs:enumeration value="Uitleg"/>
+          <xs:enumeration value="Verdrag"/>
+          <xs:enumeration value="Wet"/>
+          <xs:enumeration value="Supplement-Stcrt"/>
+          <xs:enumeration value="Infob"/>
+          <xs:enumeration value="Bulletin-des-Lois"/>
+          <xs:enumeration value="Vbbo"/>
+          <xs:enumeration value="Kk"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="rol"/>
+    <xs:attribute name="beschrijving"/>
+    <xs:attribute name="label"/>
+    <xs:attribute name="status" default="actief">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="vervallen"/>
+          <xs:enumeration value="slapend"/>
+          <xs:enumeration value="actief"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="compleet">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ja"/>
+          <xs:enumeration value="nee"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="gegenereerde-tekst" type="xs:string"/>
+  <xs:element name="materiele-uitwerkingtreding.datum">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attlist.materiele-uitwerkingtreding.datum"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.materiele-uitwerkingtreding.datum">
+    <xs:attribute name="isodatum"/>
+  </xs:attributeGroup>
+  <xs:element name="meta-data">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="brondata"/>
+        <xs:element minOccurs="0" ref="historische-brondata"/>
+        <xs:element minOccurs="0" ref="redactioneel"/>
+        <xs:element minOccurs="0" ref="delegatie"/>
+        <xs:element minOccurs="0" ref="terugwerkende-kracht-data"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.meta-data"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.meta-data">
+    <xs:attribute name="id" type="xs:ID"/>
+  </xs:attributeGroup>
+  <xs:element name="redactioneel">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="al"/>
+        <xs:element ref="lijst"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="historische-brondata">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="brondata"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
