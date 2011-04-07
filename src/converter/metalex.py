@@ -6,6 +6,11 @@ import hashlib
 import uuid
 from rdflib import ConjunctiveGraph, Namespace, Literal, URIRef, RDF, XSD
 from util import CiteGraph, ConversionReport
+from poster.encode import multipart_encode
+from poster.streaminghttp import register_openers
+import urllib2
+import base64
+
 
 
 
@@ -79,6 +84,8 @@ class MetaLexConverter():
     
 
     def __init__(self, id, doc, version, profile, flags):
+        self.flags = flags
+        
         # Set conversion flags
         self.inline_metadata = flags['inline_metadata']
         self.produce_rdf = flags['produce_rdf']
@@ -143,6 +150,8 @@ class MetaLexConverter():
     
         lang_tag = self.setLanguageTag(source_root, target_root, "")
         expression_uri = self.getExpressionURI(work_uri, lang_tag)
+        
+        self.rdf_graph_uri = expression_uri
         
         # Create attributes for the root node        
         self.createLegislativeModificationEvent(target_root, expression_uri)
@@ -816,8 +825,33 @@ class MetaLexConverter():
         target_file.write(self.target_doc.toprettyxml(encoding = 'utf-8'))
         target_file.close()
 
-    def writeRDF(self, filename, format='turtle'):
-        self.graph.serialize(destination=filename, format=format)        
+    def writeRDF(self, filename, upload_url, format='turtle'):
+        self.graph.serialize(destination=filename, format=format)       
+        
+        if upload_url :
+            print "Uploading RDF triples to : {0}".format(upload_url)
+            register_openers()
+             
+#            auth_handler = urllib2.HTTPBasicAuthHandler()
+#            auth_handler.add_password(realm = 'ClioPatria',
+#                                      uri = upload_url,
+#                                      user = 'admin',
+#                                      passwd = 'visstick')
+#            
+#            opener = urllib2.build_opener(auth_handler)
+#            urllib2.install_opener(opener)
+             
+            data = {"data" : open(filename, "rb"), "dataFormat": format, "baseURI" : self.rdf_graph_uri }
+             
+            datagen, headers = multipart_encode(data)
+            request = urllib2.Request(upload_url, datagen, headers)
+            
+            if 'user' in self.flags :
+                auth_string = "{0}:{1}".format(self.flags['user'],self.flags['pass'])
+                auth_string_b64 = base64.b64encode(auth_string)
+                request.add_header('Authorization','Basic '+auth_string_b64)
+                
+            print urllib2.urlopen(request).read()
         
         
     def writeGraph(self, filename, format='pajek') :

@@ -88,7 +88,7 @@ def convert(bwbid, cite_graph, profile, reports, flags):
     
     if flags['produce_rdf'] :
         print "Writing {0}".format(target_rdf_filename)
-        ml_converter.writeRDF(target_rdf_filename, 'turtle')
+        ml_converter.writeRDF(target_rdf_filename, flags['rdf_upload_url'], 'turtle')
         
     if flags['produce_graph'] :
         print "Writing {0}".format(target_net_filename)
@@ -193,7 +193,7 @@ def processReports(reports, profile, report_file):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net'}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net', 'rdf_upload_url': None}
 
         
         if '--no-inline-metadata' in sys.argv :
@@ -222,6 +222,14 @@ if __name__ == '__main__':
         if '--graph-file' in sys.argv :
             flags['graph_file'] = sys.argv[sys.argv.index('--graph-file')+1]
             print "Graph file set to: {0}".format(flags['graph_file'])
+            
+        if '--rdf-upload-url' in sys.argv :
+            flags['rdf_upload_url'] = sys.argv[sys.argv.index('--rdf-upload-url')+1]
+            print "Will upload RDF to: {0}".format(flags['rdf_upload_url'])
+            
+            if '-user' in sys.argv and '-pass' in sys.argv :
+                flags['user'] = sys.argv[sys.argv.index('-user')+1]
+                flags['pass'] = sys.argv[sys.argv.index('-pass')+1]
         
         
         if '--pickle' in sys.argv :
