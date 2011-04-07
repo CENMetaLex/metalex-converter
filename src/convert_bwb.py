@@ -28,10 +28,9 @@ def getVersion(bwbid):
 
     return str(date.today())
 
-def convert(bwbid, flags):
-    cite_graph = flags['cite_graph']
-    reports = flags['reports']
+def convert(bwbid, cite_graph, profile, reports, flags):
     data_dir = flags['data_dir']
+    out_dir = flags['out_dir']
     
     
     print "Starting conversion for {0} ...".format(bwbid)
@@ -42,9 +41,9 @@ def convert(bwbid, flags):
     print "... done"
 
     source_doc_filename = '{0}{1}_{2}.xml'.format(data_dir, bwbid, date_version)
-    target_doc_filename = '{0}{1}_{2}_ml.xml'.format(data_dir, bwbid, date_version)
-    target_rdf_filename = '{0}{1}_{2}.n3'.format(data_dir, bwbid, date_version)
-    target_net_filename = '{0}{1}_{2}.net'.format(data_dir, bwbid, date_version)
+    target_doc_filename = '{0}{1}_{2}_ml.xml'.format(out_dir, bwbid, date_version)
+    target_rdf_filename = '{0}{1}_{2}.n3'.format(out_dir, bwbid, date_version)
+    target_net_filename = '{0}{1}_{2}.net'.format(out_dir, bwbid, date_version)
 
     # Set doc to none to be able to detect whether it has already been loaded from URL
     doc = None
@@ -75,7 +74,7 @@ def convert(bwbid, flags):
         socket.close()
         print "... done"
 
-    ml_converter = MetaLexConverter(bwbid, doc, date_version, flags)
+    ml_converter = MetaLexConverter(bwbid, doc, date_version, profile, flags)
 
     # Handle the regulation...
     print "Starting conversion..."
@@ -122,15 +121,12 @@ def convertAll(bwbid_dict, flags):
         reports = []
         profile = Profile('./converter/bwb-mapping.txt')
         
-        flags['cite_graph': cg]
-        flags['reports': reports]
-        flags['profile': profile]
 
         for bwbid in bwbid_dict :
             count += 1
             print "\n------\nProcessing {0}/{1} ({2}%)\n------\n".format(count, total, (float(count) / float(total)) * 100)
             try :
-                convert(bwbid, flags)
+                convert(bwbid, cg, profile, reports, flags)
             except KeyboardInterrupt:
                 print "Conversion Aborted on document ID: {0}".format(bwbid)
                 break
@@ -197,30 +193,40 @@ def processReports(reports, profile):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'report_file': 'out.csv', 'data_dir': '../data/', 'graph_file': '../out/full_graph.net'}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'report_file': 'out.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net'}
 
         
         if '--no-inline-metadata' in sys.argv :
             flags['inline_metadata'] = False
+            print "Not producing inline metadata"
         if '--no-rdf' in sys.argv :
             flags['produce_rdf'] = False
+            print "Not producing an RDF graph"
         if '--no-graph' in sys.argv :
             flags['produce_graph'] = False
+            print "Not producing a citation graph"
         if '--no-report' in sys.argv :
             flags['produce_report'] = False
+            print "Not producing a report"
             
         if '--data-dir' in sys.argv :
             flags['data_dir'] = sys.argv[sys.argv.index('--data-dir')+1]
+            print "Data directory set to: {0}".format(flags['data_dir'])
+        if '--out-dir' in sys.argv :
+            flags['out_dir'] = sys.argv[sys.argv.index('--out-dir')+1]
+            print "Output directory set to: {0}".format(flags['out_dir'])
         if '--report-file' in sys.argv :
             flags['report_file'] = sys.argv[sys.argv.index('--report-file')+1]
+            print "Report file set to: {0}".format(flags['report_file'])
         if '--graph-file' in sys.argv :
             flags['graph_file'] = sys.argv[sys.argv.index('--graph-file')+1]
+            print "Graph file set to: {0}".format(flags['graph_file'])
         
         
         if '--pickle' in sys.argv :
-            pickle = sys.argv[sys.argv.index('--pickle')+1]
-            print "Pickle source: {0}\n".format(pickle)
-            id_list_file = open(pickle, 'r')
+            pickle_file = sys.argv[sys.argv.index('--pickle')+1]
+            print "Pickle source: {0}\n".format(pickle_file)
+            id_list_file = open(pickle_file, 'r')
             bwbid_dict = pickle.load(id_list_file)
             id_list_file.close()
             convertAll(bwbid_dict, flags)
@@ -253,7 +259,8 @@ Licenced under the LGPL v3 (see http://www.gnu.org/licenses/lgpl-3.0.txt)
         --no-graph            Do not produce a citation graph
         --no-report           Do not produce a conversion report
         
-        --data-dir <dir>      Location of source and target files for the conversion, default is '../data/'
+        --data-dir <dir>      Location of locally available files for the conversion, default is '../data/'
+        --out-dir <dir>       Location for target files of the conversion, default is '../out'
         --graph-file <file>   Output citation graph to specified file, default is '../out/full_graph.net'
         --report-file <file>  Output conversion report to specified file
         """

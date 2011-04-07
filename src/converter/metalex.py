@@ -78,12 +78,12 @@ class MetaLexConverter():
     sameAs = OWL["sameAs"]
     
 
-    def __init__(self, id, doc, version, flags):
+    def __init__(self, id, doc, version, profile, flags):
         # Set conversion flags
         self.inline_metadata = flags['inline_metadata']
         self.produce_rdf = flags['produce_rdf']
         self.produce_graph = flags['produce_graph']
-        self.profile = flags['profile']
+        self.profile = profile
         
         
         # Create the source document
@@ -429,27 +429,23 @@ class MetaLexConverter():
         # Add the modification event
         # ===========
         meta = self.createHrefMeta(self.creation_event_uri, self.t, self.MO['LegislativeModification'])
-        mcontainer.appendChild(meta)
-        
-        self.graph.add((URIRef(self.creation_event_uri), RDF.type , self.MO['LegislativeModification']))
+        if meta : mcontainer.appendChild(meta)
         
         # ===========
         # Add the modification event date
         # ===========
         meta = self.createHrefMeta(self.creation_event_uri, self.MO['date'], date)
-        mcontainer.appendChild(meta)
+        if meta: mcontainer.appendChild(meta)
         
-        self.graph.add((URIRef(self.creation_event_uri), self.MO['date'], URIRef(date)))
-        self.graph.add((URIRef(date), RDF.type , self.MO['Date']))
+        if self.produce_rdf : 
+            self.graph.add((URIRef(date), RDF.type , self.MO['Date']))
         
         # ===========
         # Add the modification event date value
         # ===========
         meta = self.createPropertyMeta(date, RDF.value, self.v)
-        mcontainer.appendChild(meta)
-        
-        self.graph.add((URIRef(date), RDF.value, Literal(self.v)))
-        
+        if meta : mcontainer.appendChild(meta)
+ 
         # ===========
         # Finally add the mcontainer to the node (if it's new)
         # ===========
@@ -500,7 +496,7 @@ class MetaLexConverter():
         # Add type to expression level identifier
         # ===========
         meta = self.createHrefMeta(expression_uri, self.t, self.MO['BibliographicExpression'])
-        mcontainer.appendChild(meta)
+        if meta : mcontainer.appendChild(meta)
         
         
      
@@ -509,7 +505,7 @@ class MetaLexConverter():
         # Add reference to work level identifier
         # ===========
         meta = self.createHrefMeta(expression_uri, self.realizes, work_uri)
-        mcontainer.appendChild(meta)
+        if meta : mcontainer.appendChild(meta)
         
         
         
@@ -517,7 +513,7 @@ class MetaLexConverter():
         # Add type to work level identifier
         # ===========
         meta = self.createHrefMeta(work_uri, self.t, self.MO['BibliographicWork'])
-        mcontainer.appendChild(meta)
+        if meta : mcontainer.appendChild(meta)
         
         
         
@@ -526,7 +522,7 @@ class MetaLexConverter():
         # Add result relation between creation event and expression
         # ===========
         meta = self.createHrefMeta(self.creation_event_uri, self.result, expression_uri)
-        mcontainer.appendChild(meta)
+        if meta : mcontainer.appendChild(meta)
           
 
         
@@ -538,7 +534,7 @@ class MetaLexConverter():
         # Perhaps the parent_expression_uri chain should be replaced by parent_expression_uri's throughout.
         if parent_expression_uri :
             meta = self.createHrefMeta(expression_uri, self.parent, parent_expression_uri)
-            mcontainer.appendChild(meta)     
+            if meta : mcontainer.appendChild(meta)     
                   
 
         
@@ -550,10 +546,10 @@ class MetaLexConverter():
                 # Check if we're dealing with a URI or a Literal
                 if re.match('^http',additional_attrs[k]) :
                     meta = self.createHrefMeta(expression_uri, k, additional_attrs[k])
-                    mcontainer.appendChild(meta)
+                    if meta : mcontainer.appendChild(meta)
                 else :
                     meta = self.createPropertyMeta(expression_uri, k, additional_attrs[k])
-                    mcontainer.appendChild(meta)
+                    if meta : mcontainer.appendChild(meta)
                 
         
         # ===========
@@ -574,7 +570,7 @@ class MetaLexConverter():
                     self.cg.update((expression_uri,target))
                 
                     meta = self.createHrefMeta(expression_uri, self.cites, target)
-                    mcontainer.appendChild(meta)
+                    if meta : mcontainer.appendChild(meta)
                 
                     
                 # Always add the original attribute, unless it is the xml:lang property
@@ -584,7 +580,7 @@ class MetaLexConverter():
                     # Add a custom language property, as xml:lang cannot be used as rdf:Property in the ontology.
                     meta = self.createPropertyMeta(expression_uri, self.MO['lang'], attributes[k].value)            
                     
-                mcontainer.appendChild(meta)
+                if meta : mcontainer.appendChild(meta)
                 
         # ===========
         # Finally add the mcontainer to the node (if it's new)
@@ -659,58 +655,68 @@ class MetaLexConverter():
 
 
     def createHrefMeta(self, s, p, o):
-        meta = self.target_doc.createElement(self.m)
-        meta.setAttributeNode(self.createNameAttribute(meta))
-        meta.setAttributeNode(self.createItemIdentifier(meta))
-
-        about = self.target_doc.createAttribute(self.a)
-        about.value = s
-
-        rel = self.target_doc.createAttribute(self.r)
-        rel.value = p
-
-        href = self.target_doc.createAttribute(self.h)
-        href.value = o
-
-        meta.setAttributeNode(about)
-        meta.setAttributeNode(rel)
-        meta.setAttributeNode(href)
+        if self.produce_rdf :
+            self.graph.add((URIRef(s), URIRef(p), URIRef(o)))
         
-        self.graph.add((URIRef(s), URIRef(p), URIRef(o)))
-
-        return meta
+        if self.inline_metadata :
+            meta = self.target_doc.createElement(self.m)
+            meta.setAttributeNode(self.createNameAttribute(meta))
+            meta.setAttributeNode(self.createItemIdentifier(meta))
+    
+            about = self.target_doc.createAttribute(self.a)
+            about.value = s
+    
+            rel = self.target_doc.createAttribute(self.r)
+            rel.value = p
+    
+            href = self.target_doc.createAttribute(self.h)
+            href.value = o
+    
+            meta.setAttributeNode(about)
+            meta.setAttributeNode(rel)
+            meta.setAttributeNode(href)
+    
+            return meta
+        else :
+            return None
 
     def createPropertyMeta(self, s, p, o):
-        meta = self.target_doc.createElement(self.m)
-        meta.setAttributeNode(self.createNameAttribute(meta))
-        meta.setAttributeNode(self.createItemIdentifier(meta))
-
-        about = self.target_doc.createAttribute(self.a)
-        about.value = s
-
-        prop = self.target_doc.createAttribute(self.p)
-        prop.value = p
-
-        datatype = self.target_doc.createAttribute(self.dt)
-        if re.match('^\d\d\d\d-\d\d-\d\d$',o) :
-            datatype.value = XSD.date
-        elif re.match('^\d+$',o) :
-            datatype.value = XSD.int
-        else :
-            datatype.value = XSD.string
-            
-        content = self.target_doc.createAttribute(self.ct)
-        content.value = o
-
-        meta.setAttributeNode(about)
-        meta.setAttributeNode(prop)
-        meta.setAttributeNode(datatype)
-        meta.setAttributeNode(content)
-
         
-        self.graph.add((URIRef(s), URIRef(p), Literal(o, datatype=datatype.value)))
+        if re.match('^\d\d\d\d-\d\d-\d\d$',o) :
+            dtype = XSD.date
+        elif re.match('^\d+$',o) :
+            dtype = XSD.int
+        else :
+            dtype = XSD.string
+        
+        if self.produce_rdf: 
+            self.graph.add((URIRef(s), URIRef(p), Literal(o, datatype=dtype)))
+        
+        if self.inline_metadata :
+            meta = self.target_doc.createElement(self.m)
+            meta.setAttributeNode(self.createNameAttribute(meta))
+            meta.setAttributeNode(self.createItemIdentifier(meta))
+    
+            about = self.target_doc.createAttribute(self.a)
+            about.value = s
+    
+            prop = self.target_doc.createAttribute(self.p)
+            prop.value = p
+    
+            datatype = self.target_doc.createAttribute(self.dt)
+            datatype.value = dtype
+                
+            content = self.target_doc.createAttribute(self.ct)
+            content.value = o
+    
+            meta.setAttributeNode(about)
+            meta.setAttributeNode(prop)
+            meta.setAttributeNode(datatype)
+            meta.setAttributeNode(content)
 
-        return meta
+            return meta
+        else :
+            return None
 
     def createItemIdentifier(self, new_node):
         # Create the Item Level identifier
