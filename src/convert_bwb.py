@@ -247,7 +247,12 @@ if __name__ == '__main__':
             convertAll(bwbid_dict, flags)
         elif '--all' in sys.argv :
             print "Will proceed to process *all* sources from http://www.wetten.nl.\n"
-            convertAll('pickles/bwbid_list.pickle',flags)
+            pickle_file = 'pickles/bwbid_list.pickle'
+            print "Pickle source: {0}\n".format(pickle_file)
+            id_list_file = open(pickle_file, 'r')
+            bwbid_dict = pickle.load(id_list_file)
+            id_list_file.close()
+            convertAll(bwbid_dict,flags)
     else :
         print """BWB Converter v0.1a 
 Copyright (c) 2011, Rinke Hoekstra, Universiteit van Amsterdam
