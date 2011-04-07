@@ -255,7 +255,7 @@ Licenced under the LGPL v3 (see http://www.gnu.org/licenses/lgpl-3.0.txt)
         
 
         Usage:
-        python convert_bwb.py [--pickle <file>|--bwbid <id>|--all] [--no-inline-metadata] [--no-rdf] [--no-graph] [--no-report] [--data-dir <dir>] [--graph-file <file>] [--report-file <file>]
+        python convert_bwb.py [--pickle <file>|--bwbid <id>|--all] [--no-inline-metadata] [--no-rdf] [--no-graph] [--no-report] [--data-dir <dir>] [--graph-file <file>] [--report-file <file>] [--rdf-upload-url <url>] [-user <user>] [-pass <pass>]
         
         Command line options:
         --pickle <file>       Load list of BWB identifiers from specified pickle file
