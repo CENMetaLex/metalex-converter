@@ -138,7 +138,7 @@ def convertAll(bwbid_dict, flags):
             target_file.close()
             print "... done"
 
-        processReports(reports, profile)
+        processReports(reports, profile, flags['report_file'])
 
         print "\n------\nDONE\n------\n"
 
@@ -147,8 +147,8 @@ def convertAll(bwbid_dict, flags):
 
 
 
-def processReports(reports, profile):
-    reportwriter = csv.writer(open('report.csv', 'w'))
+def processReports(reports, profile, report_file):
+    reportwriter = csv.writer(open(report_file, 'w'))
 
     keys = profile.keys()
 
@@ -193,7 +193,7 @@ def processReports(reports, profile):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'report_file': 'out.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net'}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net'}
 
         
         if '--no-inline-metadata' in sys.argv :
@@ -209,6 +209,7 @@ if __name__ == '__main__':
             flags['produce_report'] = False
             print "Not producing a report"
             
+        
         if '--data-dir' in sys.argv :
             flags['data_dir'] = sys.argv[sys.argv.index('--data-dir')+1]
             print "Data directory set to: {0}".format(flags['data_dir'])
