@@ -93,6 +93,7 @@ class MetaLexConverter():
         self.profile = profile
         
         
+        
         # Create the source document
         self.source_doc = doc
 
@@ -134,6 +135,7 @@ class MetaLexConverter():
     def handleRoot(self):
         # Check whether the document is empty or not
         if len(self.source_doc.getElementsByTagName(self.profile.lookup('error')))>0 :
+            self.rdf_graph_uri = "http://foo.bar/empty"
             print "ERROR: Document is empty."
             return self.report.getReport()
 
