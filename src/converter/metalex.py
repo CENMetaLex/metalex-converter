@@ -900,6 +900,7 @@ class MetaLexConverter():
             expression_uri = work_uri + "/" + self.v
         else:
             expression_uri = work_uri + "/" + lang_tag + "/" + self.v
+            
         return expression_uri
 
 
