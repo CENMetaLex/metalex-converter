@@ -11,28 +11,45 @@ import sys
 import urllib2
 import xml.dom.minidom
 import glob
+import string
 
 
 
-def getVersion(bwbid):
+def getVersionInfo(bwbid):
     uri = 'http://wetten.overheid.nl/{0}/informatie'.format(bwbid)
 
     try: 
         info = urllib2.urlopen(uri)
         html = info.read()
         soup = BeautifulSoup(html)
+        title = None
+        abbreviation = None
+        
+        divs = soup.findAll(id="inhoud-titel")
+        for div in divs :
+            match = re.search(r'<h2>(.*?)</h2>', str(div))
+            if match :
+                title = match.group(1).strip()
+                break
+        
         table_rows = soup.findAll("tr")
         for row in table_rows :
-            # print row
-            match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)', str(row))
+            match = re.search(r'Afkorting:</th><td> (.*?)<', str(row))
             if match :
-                return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1))
+                abbreviation = match.group(1).strip()
+                if abbreviation == "Geen" :
+                    abbreviation = None
+                continue
+            
+            match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)</b></p></td><td>.*?</td><td><p>(.*?)</p></td>', str(row))
+            if match :
+                return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1)), string.replace(match.group(4),' ','_'), abbreviation, title
     except Exception as e:
         print e
         print "ERROR: Error loading version info from HTML page. Are you sure the BWBID is valid?"
         return None
     
-    return str(date.today())
+    return str(date.today()), "unknown", None, None
 
 def convert(bwbid, cite_graph, profile, reports, flags):
     data_dir = flags['data_dir']
@@ -47,12 +64,14 @@ def convert(bwbid, cite_graph, profile, reports, flags):
             return
 
     print "Getting version date from info URL..."
-    date_version = getVersion(bwbid)
-    
+    date_version, modification_type, abbreviation, title = getVersionInfo(bwbid)
     if not(date_version) :
         print "No version date for {0}. Skipping...".format(bwbid)
         return
     
+    print "Title:               {0}".format(title)
+    print "Abbreviation:        {0}".format(abbreviation)
+    print "Modification type:   {0}".format(modification_type)
     print "Latest version date: {0}".format(date_version)
     print "... done"
 
@@ -94,7 +113,7 @@ def convert(bwbid, cite_graph, profile, reports, flags):
         socket.close()
         print "... done"
 
-    ml_converter = MetaLexConverter(bwbid, doc, date_version, profile, flags)
+    ml_converter = MetaLexConverter(bwbid, doc, date_version, modification_type, abbreviation, title, profile, flags)
 
     # Handle the regulation...
     print "Starting conversion..."
@@ -157,8 +176,8 @@ def convertAll(bwbid_dict, flags):
                 print "Conversion Aborted on document ID: {0}".format(bwbid)
                 break
 
-        if flags['produce_graph'] :
-            print "Writing full graph to file ..."
+        if flags['produce_graph'] and flags['produce_full_graph']:
+            print "Writing full graph to file \'{0}\'...".format(flags['graph_file'])
             target_file = open(flags['graph_file'], 'w')
             target_file.write(cg.writePajek())
             target_file.close()
@@ -219,7 +238,7 @@ def processReports(reports, profile, report_file):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net', 'rdf_upload_url': None, 'no_update': False, 'produce_full_graph': True}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'no_update': False, 'produce_full_graph': True}
 
         
         if '--no-inline-metadata' in sys.argv :

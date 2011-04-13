@@ -29,6 +29,9 @@ class MetaLexConverter():
     XML = Namespace('http://www.w3.org/XML/1998/namespace')
     OWL = Namespace('http://www.w3.org/2002/07/owl#')
     XHTML = Namespace('http://www.w3.org/1999/xhtml#')
+    OPMV = Namespace('http://purl.org/net/opmv/ns#')
+    TIME = Namespace('http://www.w3.org/2006/time#')
+    DCTERMS = Namespace('http://purl.org/dc/terms/')
 
    
     # Standard elements
@@ -83,8 +86,9 @@ class MetaLexConverter():
     sameAs = OWL["sameAs"]
     
 
-    def __init__(self, id, doc, version, profile, flags):
+    def __init__(self, id, doc, version, modification_type, abbreviation, title, profile, flags):
         self.flags = flags
+        self.bwbid = id
         
         # Set conversion flags
         self.inline_metadata = flags['inline_metadata']
@@ -100,16 +104,19 @@ class MetaLexConverter():
         # Create the target document
         self.target_doc = xml.dom.minidom.getDOMImplementation().createDocument(self.MS, "source_root", None)
 
-        # Set instance-variables for version, profile and report        
-        self.v = version
-        self.report = ConversionReport(id)
-        
         # Make sure we create a new RDF graph for every document
         self.graph = ConjunctiveGraph()
         
         # Get the ontology base for the source elements
         self.o = self.profile.lookup('ontology_base')        
         self.WO = Namespace(self.o)
+
+        # Set instance-variables for version, modification type and report        
+        self.v = version
+        self.modification_type = self.WO[modification_type]
+        self.abbreviation = abbreviation
+        self.title = title
+        self.report = ConversionReport(id)
         
         # Bind namespaces to graph
         self.graph.namespace_manager.bind('mo',self.MO)
@@ -118,6 +125,9 @@ class MetaLexConverter():
         self.graph.namespace_manager.bind('owl',self.OWL)
         self.graph.namespace_manager.bind('xml',self.XML)
         self.graph.namespace_manager.bind('rdfs',self.RDFS)
+        self.graph.namespace_manager.bind('opmv',self.OPMV)
+        self.graph.namespace_manager.bind('time',self.TIME)
+        self.graph.namespace_manager.bind('dcterms',self.DCTERMS)
 
         # Create a new citation graph...
         self.cg = CiteGraph()
@@ -133,28 +143,48 @@ class MetaLexConverter():
     # Basic Functions
     # ----------
     def handleRoot(self):
-        # Check whether the document is empty or not
-        if len(self.source_doc.getElementsByTagName(self.profile.lookup('error')))>0 :
-            self.rdf_graph_uri = "http://foo.bar/empty"
-            print "ERROR: Document is empty."
-            return self.report.getReport()
-
-
         # Get the root element for the source and target DOM tree
-        source_root = self.source_doc.getElementsByTagName(self.profile.lookup('root'))[0]
+        
         target_root = self.target_doc.documentElement
         
-        self.source_root_uri = source_root.getAttribute(self.profile.lookup('root_id'))
+        self.source_root_uri = self.bwbid
         print "Starting {0} ...".format(self.source_root_uri)
         
         # Determine URIs for the root node
         work_uri = self.top_uri + self.source_root_uri         
     
+        
+        # Check whether the document is empty or not
+        if len(self.source_doc.getElementsByTagName(self.profile.lookup('error')))>0 :
+            print "Document is empty: Assuming {0} was repealed on latest version date ({1}).".format(self.bwbid, self.v)
+            # Repealed regulations don't have a language
+            expression_uri = self.getExpressionURI(work_uri,'')
+            self.rdf_graph_uri = expression_uri 
+            self.createLegislativeModificationEvent(target_root, expression_uri)
+            self.setNamespaces(target_root)
+            
+            if self.title :
+                additional_attrs = {self.DCTERMS['title'] : self.title }
+            else :
+                additional_attrs = {}
+            
+            if self.abbreviation :
+                additional_attrs[self.DCTERMS['alternative']] = self.abbreviation 
+                
+            self.handleMetadata(target_root, None, expression_uri, work_uri, {}, additional_attrs)
+            return self.report.getReport()
+        
+        source_root = self.source_doc.getElementsByTagName(self.profile.lookup('root'))[0]
         lang_tag = self.setLanguageTag(source_root, target_root, "")
         expression_uri = self.getExpressionURI(work_uri, lang_tag)
+        self.rdf_graph_uri = expression_uri   
         
-        self.rdf_graph_uri = expression_uri
-        
+        if self.source_root_uri != source_root.getAttribute(self.profile.lookup('root_id')) :
+            self.rdf_graph_uri = "http://foo.bar/error"
+            print "ERROR: BWBID and identifier of root element do not match!"
+            return self.report.getReport()
+
+
         # Create attributes for the root node        
         self.createLegislativeModificationEvent(target_root, expression_uri)
         
@@ -162,7 +192,15 @@ class MetaLexConverter():
                 
         self.setNamespaces(target_root)
         
-        self.handleMetadata(target_root, None, expression_uri, work_uri, source_root.attributes)
+        if self.title :
+            additional_attrs = {self.DCTERMS['title'] : self.title }
+        else :
+            additional_attrs = {}
+        
+        if self.abbreviation :
+            additional_attrs[self.DCTERMS['alternative']] = self.abbreviation 
+            
+        self.handleMetadata(target_root, None, expression_uri, work_uri, source_root.attributes, additional_attrs)
         
         # Report the substitution
         self.report.addSubstitution(self.source_root)
@@ -433,6 +471,7 @@ class MetaLexConverter():
         mcontainer, new = self.getMContainer(node)
         
         self.creation_event_uri = self.top_uri + 'event/' + self.source_root_uri + '/' + self.v
+        self.creation_process_uri = self.top_uri + 'process/' + self.source_root_uri + '/' + self.v
         
         date = self.top_uri + 'date/' + self.v
         
@@ -442,20 +481,59 @@ class MetaLexConverter():
         meta = self.createHrefMeta(self.creation_event_uri, self.t, self.MO['LegislativeModification'])
         if meta : mcontainer.appendChild(meta)
         
+        meta = self.createHrefMeta(self.creation_event_uri, self.MO['result'], expression_uri)
+        if meta : mcontainer.appendChild(meta)
+        
+        # ===========
+        # Add the modification type
+        # ===========
+        meta = self.createHrefMeta(self.creation_event_uri, self.t, self.modification_type)
+        if meta : mcontainer.appendChild(meta)
+        
         # ===========
         # Add the modification event date
         # ===========
         meta = self.createHrefMeta(self.creation_event_uri, self.MO['date'], date)
         if meta: mcontainer.appendChild(meta)
         
-        if self.produce_rdf : 
-            self.graph.add((URIRef(date), RDF.type , self.MO['Date']))
-        
+        meta = self.createHrefMeta(date, self.t, self.MO['Date'])
+        if meta: mcontainer.appendChild(meta)
+
+        meta = self.createHrefMeta(date, self.t, self.TIME['Instant'])
+        if meta: mcontainer.appendChild(meta)
+ 
         # ===========
         # Add the modification event date value
         # ===========
         meta = self.createPropertyMeta(date, RDF.value, self.v)
         if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createPropertyMeta(expression_uri, self.DCTERMS['valid'], self.v)
+        if meta : mcontainer.appendChild(meta)
+        
+        
+        # ===========
+        # Add a Open Provenance Model process
+        # ===========
+        meta = self.createHrefMeta(self.creation_process_uri, self.t, self.OPMV['Process'])
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createHrefMeta(self.creation_process_uri, self.TIME['hasEnd'],date)
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createHrefMeta(expression_uri, self.OPMV['wasGeneratedBy'],self.creation_process_uri)
+        if meta : mcontainer.appendChild(meta)    
+        
+        meta = self.createHrefMeta(expression_uri, self.t, self.OPMV['Artifact'])
+        if meta : mcontainer.appendChild(meta)     
+        
+        meta = self.createHrefMeta(expression_uri, self.OPMV['wasGeneratedAt'], date)
+        if meta : mcontainer.appendChild(meta)    
+        
+        meta = self.createPropertyMeta(date, self.TIME['inXSDDateTime'], self.v)
+        if meta: mcontainer.appendChild(meta)
+        
+
  
         # ===========
         # Finally add the mcontainer to the node (if it's new)
