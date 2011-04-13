@@ -10,6 +10,7 @@ import re
 import sys
 import urllib2
 import xml.dom.minidom
+import glob
 
 
 
@@ -26,7 +27,8 @@ def getVersion(bwbid):
             match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)', str(row))
             if match :
                 return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1))
-    except :
+    except Exception as e:
+        print e
         print "ERROR: Error loading version info from HTML page. Are you sure the BWBID is valid?"
         return None
     
@@ -38,12 +40,17 @@ def convert(bwbid, cite_graph, profile, reports, flags):
     
     
     print "Starting conversion for {0} ...".format(bwbid)
+    
+    if flags['no_update'] :
+        if glob.glob('{0}{1}_*-*-*.xml'.format(data_dir, bwbid)) :
+            print "Some version of {0} already exists, skipping ...".format(bwbid)
+            return
 
     print "Getting version date from info URL..."
     date_version = getVersion(bwbid)
     
     if not(date_version) :
-        print "No obtainable version date for {0}. Skipping...".format(bwbid)
+        print "No version date for {0}. Skipping...".format(bwbid)
         return
     
     print "Latest version date: {0}".format(date_version)
@@ -212,7 +219,7 @@ def processReports(reports, profile, report_file):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net', 'rdf_upload_url': None}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph.net', 'rdf_upload_url': None, 'no_update': False}
 
         
         if '--no-inline-metadata' in sys.argv :
@@ -230,6 +237,9 @@ if __name__ == '__main__':
         if '--skip-if-existing' in sys.argv :
             flags['skip_if_existing'] = True
             print "Skipping if MetaLex XML already exists"
+        if '--no-update' in sys.argv :
+            flags['no_update'] = True
+            print "Skipping if any XML version of BWB document already exists"
             
         
         if '--data-dir' in sys.argv :
