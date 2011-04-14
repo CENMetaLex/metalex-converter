@@ -192,6 +192,7 @@ inline	unl
 inline	vertaald-door
 inline	vertaling-van
 inline	voorlopigetoepassing.datum
+inline	subtitel
 milestone	colspec
 milestone	illustratie
 milestone	nootref
