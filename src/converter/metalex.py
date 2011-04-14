@@ -484,7 +484,7 @@ class MetaLexConverter():
         meta = self.createHrefMeta(self.creation_event_uri, self.t, self.MO['LegislativeModification'])
         if meta : mcontainer.appendChild(meta)
         
-        meta = self.createHrefMeta(self.creation_event_uri, self.MO['result'], expression_uri)
+        meta = self.createHrefMeta(expression_uri, self.MO['resultOf'], self.creation_event_uri)
         if meta : mcontainer.appendChild(meta)
         
         # ===========
