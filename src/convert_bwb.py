@@ -76,7 +76,7 @@ def convert(bwbid, cite_graph, profile, reports, flags):
             return
         
     if flags['skip_if_existing'] :
-        if glob.glob('{0}{1}_*-*-*_ml.xml'.format(data_dir, bwbid)) :
+        if glob.glob('{0}{1}_*-*-*_ml.xml'.format(out_dir, bwbid)) :
             print "Some MetaLex XML version already exists, skipping ..."
             return
 
