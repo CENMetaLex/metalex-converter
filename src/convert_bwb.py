@@ -24,6 +24,7 @@ def getVersionInfo(bwbid):
         soup = BeautifulSoup(html)
         title = None
         abbreviation = None
+        type = None
         
         divs = soup.findAll(id="inhoud-titel")
         for div in divs :
@@ -43,13 +44,17 @@ def getVersionInfo(bwbid):
             
             match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)</b></p></td><td><p>(.*?)</p></td><td><p>(.*?)</p></td>', str(row))
             if match :
-                type = string.replace(BeautifulStoneSoup(match.group(5), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
-                print "1 ", type
-                if not re.match(r'\w{6,}',type) :
-                    type = string.replace(BeautifulStoneSoup(match.group(4), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
-                    print "2 ", type
+#                print "1 pre", match.group(5)
+                if match.group(5) != "":
+                    type = string.replace(BeautifulStoneSoup(match.group(5), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
+#                    print "1 ", type
                     if not re.match(r'\w{6,}',type) :
-                        type = None
+#                        print "2 pre", match.group(4)
+                        if match.group(4) != "" :
+                            type = string.replace(BeautifulStoneSoup(match.group(4), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
+#                            print "2 ", type
+                            if not re.match(r'\w{6,}',type) :
+                                type = None
                 return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1)), type, abbreviation, title
     except Exception as e:
         print e
