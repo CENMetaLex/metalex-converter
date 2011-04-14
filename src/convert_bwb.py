@@ -74,6 +74,11 @@ def convert(bwbid, cite_graph, profile, reports, flags):
         if glob.glob('{0}{1}_*-*-*.xml'.format(data_dir, bwbid)) :
             print "Some version of {0} already exists, skipping ...".format(bwbid)
             return
+        
+    if flags['skip_if_existing'] :
+        if glob.glob('{0}{1}_*-*-*_ml.xml'.format(data_dir, bwbid)) :
+            print "Some MetaLex XML version already exists, skipping ..."
+            return
 
     print "Getting version date from info URL..."
     date_version, modification_type, abbreviation, title = getVersionInfo(bwbid)
@@ -92,9 +97,7 @@ def convert(bwbid, cite_graph, profile, reports, flags):
     target_rdf_filename = '{0}{1}_{2}.n3'.format(out_dir, bwbid, date_version)
     target_net_filename = '{0}{1}_{2}.net'.format(out_dir, bwbid, date_version)
 
-    if flags['skip_if_existing'] and os.path.isfile(target_doc_filename) :
-        print "MetaLex XML version already exists, skipping ..."
-        return
+
 
     # Set doc to none to be able to detect whether it has already been loaded from URL
     doc = None
