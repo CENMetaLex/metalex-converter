@@ -42,16 +42,20 @@ def getVersionInfo(bwbid):
                     abbreviation = None
                 continue
             
-            match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)</b></p></td><td><p>(.*?)</p></td><td><p>(.*?)</p></td>', str(row))
+            match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)</b></p></td><td.*?>(.*?)</td><td.*?>(.*?)</td>', str(row))
             if match :
 #                print "1 pre", match.group(5)
                 if match.group(5) != "":
-                    type = string.replace(BeautifulStoneSoup(match.group(5), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
+                    text = string.replace(match.group(5),'<p>','')
+                    text = string.replace(text,'</p>','')
+                    type = string.replace(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
 #                    print "1 ", type
                     if not re.match(r'\w{6,}',type) :
 #                        print "2 pre", match.group(4)
                         if match.group(4) != "" :
-                            type = string.replace(BeautifulStoneSoup(match.group(4), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
+                            text = string.replace(match.group(4),'<p>','')
+                            text = string.replace(text,'</p>','')
+                            type = string.replace(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
 #                            print "2 ", type
                             if not re.match(r'\w{6,}',type) :
                                 type = None
@@ -61,7 +65,7 @@ def getVersionInfo(bwbid):
         print "ERROR: Error loading version info from HTML page. Are you sure the BWBID is valid?"
         return None
     
-    return str(date.today()), None, None, None
+    return str(date.today()), type, abbreviation, title
 
 def convert(bwbid, cite_graph, profile, reports, flags):
     data_dir = flags['data_dir']
