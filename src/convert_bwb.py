@@ -63,9 +63,10 @@ def getVersionInfo(bwbid):
     except Exception as e:
         print e
         print "ERROR: Error loading version info from HTML page. Are you sure the BWBID is valid?"
-        return None
+        return None, None, None, None
     
-    return str(date.today()), type, abbreviation, title
+    # No date, no version!
+    return None, type, abbreviation, title
 
 def convert(bwbid, cite_graph, profile, reports, flags):
     data_dir = flags['data_dir']
