@@ -1,4 +1,4 @@
-from BeautifulSoup import BeautifulSoup
+from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from datetime import date
 from converter.metalex import MetaLexConverter
 from converter.util import Profile, CiteGraph
@@ -41,9 +41,16 @@ def getVersionInfo(bwbid):
                     abbreviation = None
                 continue
             
-            match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)</b></p></td><td>.*?</td><td><p>(.*?)</p></td>', str(row))
+            match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)</b></p></td><td><p>(.*?)</p></td><td><p>(.*?)</p></td>', str(row))
             if match :
-                return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1)), string.replace(match.group(4),' ','_'), abbreviation, title
+                type = string.replace(BeautifulStoneSoup(match.group(5), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
+                print "1 ", type
+                if not re.match(r'\w{6,}',type) :
+                    type = string.replace(BeautifulStoneSoup(match.group(4), convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
+                    print "2 ", type
+                    if not re.match(r'\w{6,}',type) :
+                        type = None
+                return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1)), type, abbreviation, title
     except Exception as e:
         print e
         print "ERROR: Error loading version info from HTML page. Are you sure the BWBID is valid?"

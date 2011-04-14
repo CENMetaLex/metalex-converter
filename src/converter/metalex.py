@@ -113,7 +113,10 @@ class MetaLexConverter():
 
         # Set instance-variables for version, modification type and report        
         self.v = version
-        self.modification_type = self.WO[modification_type]
+        if modification_type :
+            self.modification_type = self.WO[modification_type]
+        else :
+            self.modification_type = None
         self.abbreviation = abbreviation
         self.title = title
         self.report = ConversionReport(id)
@@ -487,8 +490,9 @@ class MetaLexConverter():
         # ===========
         # Add the modification type
         # ===========
-        meta = self.createHrefMeta(self.creation_event_uri, self.t, self.modification_type)
-        if meta : mcontainer.appendChild(meta)
+        if self.modification_type :
+            meta = self.createHrefMeta(self.creation_event_uri, self.t, self.modification_type)
+            if meta : mcontainer.appendChild(meta)
         
         # ===========
         # Add the modification event date
