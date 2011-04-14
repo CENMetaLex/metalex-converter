@@ -50,15 +50,15 @@ def getVersionInfo(bwbid):
                     text = string.replace(text,'</p>','')
                     type = string.replace(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
 #                    print "1 ", type
-                    if not re.match(r'\w{6,}',type) and match.group(4) != "<p></p>":
-#                        print "2 pre", match.group(4)
-                        if match.group(4) != "" :
-                            text = string.replace(match.group(4),'<p>','')
-                            text = string.replace(text,'</p>','')
-                            type = string.replace(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
-#                            print "2 ", type
-                            if not re.match(r'\w{6,}',type) :
-                                type = None
+                if not type or (not re.match(r'\w{6,}',type) and match.group(4) != "" and match.group(4) != "<p></p>"):
+#                    print "2 pre", match.group(4)
+                    if match.group(4) != "" and match.group(4) != "<p></p>":
+                        text = string.replace(match.group(4),'<p>','')
+                        text = string.replace(text,'</p>','')
+                        type = string.replace(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
+#                        print "2 ", type
+                        if not re.match(r'\w{6,}',type) :
+                            type = None
                 return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1)), type, abbreviation, title
     except Exception as e:
         print e
@@ -168,7 +168,8 @@ def convert(bwbid, cite_graph, profile, reports, flags):
         # Make sure to delete the ml_converter, to save up on garbage collection
         del ml_converter
         del doc
-    except UnicodeDecodeError:
+    except UnicodeDecodeError as e:
+        print e
         print "UnicodeDecodeError: Skipping conversion of {0}...".format(bwbid)
     except :
         print "Unexpected error:", sys.exc_info()[0]
