@@ -45,12 +45,12 @@ def getVersionInfo(bwbid):
             match = re.search(r'<tr.*?><td.*?><p><b>(\d\d)-(\d\d)-(\d\d\d\d)</b></p></td><td.*?>(.*?)</td><td.*?>(.*?)</td>', str(row))
             if match :
 #                print "1 pre", match.group(5)
-                if match.group(5) != "":
+                if match.group(5) != "" and match.group(5) != "<p></p>":
                     text = string.replace(match.group(5),'<p>','')
                     text = string.replace(text,'</p>','')
                     type = string.replace(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.HTML_ENTITIES).contents[0].strip(),' ','_')
 #                    print "1 ", type
-                    if not re.match(r'\w{6,}',type) :
+                    if not re.match(r'\w{6,}',type) and match.group(4) != "<p></p>":
 #                        print "2 pre", match.group(4)
                         if match.group(4) != "" :
                             text = string.replace(match.group(4),'<p>','')
