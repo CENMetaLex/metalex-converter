@@ -262,7 +262,8 @@ def processReports(reports, profile, report_file):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='conversion.log',filemode='w',level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+#    logging.basicConfig(filename='conversion.log',filemode='w',level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
     
     if len(sys.argv) > 1:
         flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'no_update': False, 'produce_full_graph': True}
