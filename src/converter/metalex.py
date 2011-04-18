@@ -618,7 +618,7 @@ class MetaLexConverter():
         if meta : mcontainer.appendChild(meta)
         meta = self.createHrefMeta(expression_uri, self.FOAF['page'], xml_doc)
         if meta : mcontainer.appendChild(meta)
-        meta = self.createHrefMeta(expression_uri, self.RDF['isDefinedBy'], rdf_doc)
+        meta = self.createHrefMeta(expression_uri, self.RDFS['isDefinedBy'], rdf_doc)
         if meta : mcontainer.appendChild(meta)
 
 
