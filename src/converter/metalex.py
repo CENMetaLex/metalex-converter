@@ -203,7 +203,7 @@ class MetaLexConverter():
         additional_attrs = {self.DCTERMS['source'] : self.source_doc_uri}
         
         if self.title :
-            additional_attrs = [self.DCTERMS['title']] = self.title 
+            additional_attrs[self.DCTERMS['title']] = self.title 
         
         if self.abbreviation :
             additional_attrs[self.DCTERMS['alternative']] = self.abbreviation 
