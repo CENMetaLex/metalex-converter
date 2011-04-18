@@ -10,6 +10,7 @@ from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
 import urllib2
 import base64
+import logging
 
 
 
@@ -32,6 +33,7 @@ class MetaLexConverter():
     OPMV = Namespace('http://purl.org/net/opmv/ns#')
     TIME = Namespace('http://www.w3.org/2006/time#')
     DCTERMS = Namespace('http://purl.org/dc/terms/')
+    FOAF = Namespace('http://xmlns.com/foaf/0.1/')
 
    
     # Standard elements
@@ -86,7 +88,7 @@ class MetaLexConverter():
     sameAs = OWL["sameAs"]
     
 
-    def __init__(self, id, doc, version, modification_type, abbreviation, title, profile, flags):
+    def __init__(self, id, doc, source_doc_uri, version, modification_type, abbreviation, title, profile, flags):
         self.flags = flags
         self.bwbid = id
         
@@ -100,7 +102,7 @@ class MetaLexConverter():
         
         # Create the source document
         self.source_doc = doc
-
+        self.source_doc_uri = source_doc_uri
         # Create the target document
         self.target_doc = xml.dom.minidom.getDOMImplementation().createDocument(self.MS, "source_root", None)
 
@@ -131,6 +133,7 @@ class MetaLexConverter():
         self.graph.namespace_manager.bind('opmv',self.OPMV)
         self.graph.namespace_manager.bind('time',self.TIME)
         self.graph.namespace_manager.bind('dcterms',self.DCTERMS)
+        self.graph.namespace_manager.bind('foaf',self.FOAF)
 
         # Create a new citation graph...
         self.cg = CiteGraph()
@@ -151,7 +154,7 @@ class MetaLexConverter():
         target_root = self.target_doc.documentElement
         
         self.source_root_uri = self.bwbid
-        print "Starting {0} ...".format(self.source_root_uri)
+        logging.debug("Starting {0} ...".format(self.source_root_uri))
         
         # Determine URIs for the root node
         work_uri = self.top_uri + self.source_root_uri         
@@ -159,7 +162,7 @@ class MetaLexConverter():
         
         # Check whether the document is empty or not
         if len(self.source_doc.getElementsByTagName(self.profile.lookup('error')))>0 :
-            print "Document is empty: Assuming {0} was repealed on latest version date ({1}).".format(self.bwbid, self.v)
+            logging.warning("Document is empty: Assuming {0} was repealed on latest version date ({1}).".format(self.bwbid, self.v))
             # Repealed regulations don't have a language
             expression_uri = self.getExpressionURI(work_uri,'')
             self.rdf_graph_uri = expression_uri 
@@ -184,7 +187,7 @@ class MetaLexConverter():
         
         if self.source_root_uri != source_root.getAttribute(self.profile.lookup('root_id')) :
             self.rdf_graph_uri = "http://foo.bar/error"
-            print "ERROR: BWBID and identifier of root element do not match!"
+            logging.error("BWBID and identifier of root element do not match! (which is highly unlikely")
             return self.report.getReport()
 
 
@@ -195,10 +198,12 @@ class MetaLexConverter():
                 
         self.setNamespaces(target_root)
         
+        # Some 'additional' metadata: source_doc_uri, title and alternative title (abbreviation)
+        
+        additional_attrs = {self.DCTERMS['source'] : self.source_doc_uri}
+        
         if self.title :
-            additional_attrs = {self.DCTERMS['title'] : self.title }
-        else :
-            additional_attrs = {}
+            additional_attrs = [self.DCTERMS['title']] = self.title 
         
         if self.abbreviation :
             additional_attrs[self.DCTERMS['alternative']] = self.abbreviation 
@@ -211,7 +216,7 @@ class MetaLexConverter():
         for element in source_root.childNodes :
             self.handle(element,target_root,work_uri,work_uri,expression_uri,target_root, lang_tag)
         
-        print "... end {0}.".format(self.source_root_uri)
+        logging.debug("({0} done)".format(self.source_root_uri))
         
         return self.report.getReport()
 
@@ -440,7 +445,7 @@ class MetaLexConverter():
                     self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
 
             else :
-                print 'WARNING: Node does not occur in mapping list: '+ source_node.tagName
+                logging.warning('Node does not occur in mapping list: {0}'.format(source_node.tagName))
 
                 
         elif source_node.nodeType == source_node.TEXT_NODE :
@@ -591,16 +596,11 @@ class MetaLexConverter():
         meta = self.createHrefMeta(expression_uri, self.t, self.MO['BibliographicExpression'])
         if meta : mcontainer.appendChild(meta)
         
-        
-     
-        
         # ===========
         # Add reference to work level identifier
         # ===========
         meta = self.createHrefMeta(expression_uri, self.realizes, work_uri)
         if meta : mcontainer.appendChild(meta)
-        
-        
         
         # ===========
         # Add type to work level identifier
@@ -608,6 +608,20 @@ class MetaLexConverter():
         meta = self.createHrefMeta(work_uri, self.t, self.MO['BibliographicWork'])
         if meta : mcontainer.appendChild(meta)
         
+        # ===========
+        # Add reference to various manifestation level identifiers
+        # ===========
+        html_page = expression_uri + '/data.html'
+        xml_doc = expression_uri + '/data.xml'
+        rdf_doc = expression_uri + '/data.rdf'
+        meta = self.createHrefMeta(expression_uri, self.FOAF['homePage'], html_page)
+        if meta : mcontainer.appendChild(meta)
+        meta = self.createHrefMeta(expression_uri, self.FOAF['page'], xml_doc)
+        if meta : mcontainer.appendChild(meta)
+        meta = self.createHrefMeta(expression_uri, self.RDF['isDefinedBy'], rdf_doc)
+        if meta : mcontainer.appendChild(meta)
+
+
         
         
         
@@ -829,7 +843,8 @@ class MetaLexConverter():
         new_node.setAttributeNode(about)
         
         new_node.setAttributeNode(self.createNameAttribute(new_node))
-        new_node.setAttributeNode(self.createClassAttribute(node))       
+        new_node.setAttributeNode(self.createClassAttribute(node))    
+        
         
          
 
@@ -913,17 +928,8 @@ class MetaLexConverter():
         self.graph.serialize(destination=filename, format=format)       
         
         if upload_url :
-            print "Uploading RDF triples to : {0}".format(upload_url)
+            logging.info("Uploading RDF triples to : {0}".format(upload_url))
             register_openers()
-             
-#            auth_handler = urllib2.HTTPBasicAuthHandler()
-#            auth_handler.add_password(realm = 'ClioPatria',
-#                                      uri = upload_url,
-#                                      user = 'admin',
-#                                      passwd = 'visstick')
-#            
-#            opener = urllib2.build_opener(auth_handler)
-#            urllib2.install_opener(opener)
              
             data = {"data" : open(filename, "rb"), "dataFormat": format, "baseURI" : self.rdf_graph_uri }
              
@@ -935,7 +941,8 @@ class MetaLexConverter():
                 auth_string_b64 = base64.b64encode(auth_string)
                 request.add_header('Authorization','Basic '+auth_string_b64)
                 
-            print urllib2.urlopen(request).read()
+            reply = urllib2.urlopen(request).read()
+            logging.debug(reply)
         
         
     def writeGraph(self, filename, format='pajek') :
