@@ -62,7 +62,7 @@ def getVersionInfo(bwbid):
                             type = None
                 return "{0}-{1}-{2}".format(match.group(3), match.group(2), match.group(1)), type, abbreviation, title
     except Exception:
-        logging.error("Error loading version info from HTML page. Are you sure the BWBID is valid?",exc_info=sys.exc_info())
+        logging.error("Error loading version info from HTML page. Are you sure the BWBID {0} is valid?".format(bwbid),exc_info=sys.exc_info())
         return None, None, None, None
     
     # No date, no version!
@@ -172,15 +172,15 @@ def convert(bwbid, cite_graph, profile, reports, flags):
         # Make sure to delete the ml_converter, to save up on garbage collection
         del ml_converter
         del doc
-    except UnicodeDecodeError as e:
-        print e
-        logging.error("UnicodeDecodeError: Skipping conversion of {0}".format(bwbid), exc_info=sys.exc_info())
+    except UnicodeDecodeError:
+        logging.error("UnicodeDecodeError: Skipping conversion of {0}.".format(bwbid), exc_info=sys.exc_info())
     except :
-        logging.error("Unexpected error:", exc_info=sys.exc_info())
-        raise
+        logging.error("Unexpected error in conversion of {0}.".format(bwbid), exc_info=sys.exc_info())
 
 
 def convertAll(bwbid_dict, flags):
+    last_bwbid = None
+    
     try :
         total = len(bwbid_dict)
         count = 0
@@ -193,12 +193,13 @@ def convertAll(bwbid_dict, flags):
         logging.info('Loaded conversion profile.')
 
         for bwbid in bwbid_dict :
+            last_bwbid = bwbid
             count += 1
             logging.info("Processing {0}/{1} ({2}%)".format(count, total, (float(count) / float(total)) * 100))
             try :
                 convert(bwbid, cg, profile, reports, flags)
             except KeyboardInterrupt:
-                logging.error("Conversion Aborted on document ID: {0}".format(bwbid), exc_info=sys.exc_info())
+                logging.error("Conversion aborted on {0}".format(bwbid), exc_info=sys.exc_info())
                 break
 
         if flags['produce_graph'] and flags['produce_full_graph']:
@@ -210,10 +211,10 @@ def convertAll(bwbid_dict, flags):
 
         processReports(reports, profile, flags['report_file'])
 
-        logging.info("Conversion complete")
+        logging.info("Conversion of {0} complete".format(bwbid))
 
     except IOError:
-        logging.error("I/O Error",exc_info=sys.exc_info())
+        logging.error("I/O Error in conversion of {0}.".format(last_bwbid),exc_info=sys.exc_info())
 
 
 

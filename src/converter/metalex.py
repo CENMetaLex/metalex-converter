@@ -187,7 +187,7 @@ class MetaLexConverter():
         
         if self.source_root_uri != source_root.getAttribute(self.profile.lookup('root_id')) :
             self.rdf_graph_uri = "http://foo.bar/error"
-            logging.error("BWBID and identifier of root element do not match! (which is highly unlikely")
+            logging.error("BWBID {0} and identifier of root element do not match! (which is highly unlikely)".format(self.source_root_uri))
             return self.report.getReport()
 
 
@@ -445,7 +445,7 @@ class MetaLexConverter():
                     self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
 
             else :
-                logging.warning('Node does not occur in mapping list: {0}'.format(source_node.tagName))
+                logging.warning('Node {1} in {0} does not occur in mapping list.'.format(target_parent_expression_uri, source_node.tagName))
 
                 
         elif source_node.nodeType == source_node.TEXT_NODE :
