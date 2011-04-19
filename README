@@ -1,6 +1,16 @@
+MetaLex Converter
+Copyright (c) 2011 by Rinke Hoekstra, Universiteit van Amsterdam
+====
 
+This is a set of Python scripts for converting legislative XML to the MetaLex CEN format [1], an RDF representation of its metadata, and a Pajek NET file containing cross references between regulations. 
 
-Steps:
+The current version can convert the Dutch Basiswettenbestand [2].
+
+[1] See http://www.metalex.eu
+[2] See http://www.wetten.nl
+
+====
+How to get things going:
 
 * Install Python 2.7 for your OS
 * Install Python setuptools (for easy_install)
@@ -12,4 +22,12 @@ Steps:
   - Get the latest source distribution (3.2 or higher) and build according to the instructions 
   - (run 'setup.py install')
   
+* Install poster from http://www.atlee.ca/software/poster
+  - (run 'easy_install poster')
   
+* Clone the GIT reposittory from GitHub:
+  - git clone it://github.com/RinkeHoekstra/metalex-converter.git
+  - (you can always update to the latest version by running 'git pull')
+  
+* Change dir to the /src directory, and run 'python convert_bwb.py'
+* There's a convenience script 'convertall.sh' for converting all known documents in the BWB. 
