@@ -19,7 +19,8 @@ import logging
 class MetaLexConverter():
 
     # Base URI for newly created elements
-    top_uri = "http://doc.metalex.eu/"
+    top_uri = "http://doc.metalex.eu/id/"
+    doc_uri = "http://doc.metalex.eu/doc/"
 
     # MetaLex namespaces
     MO = Namespace('http://www.metalex.eu/schema/1.0#')
@@ -611,9 +612,9 @@ class MetaLexConverter():
         # ===========
         # Add reference to various manifestation level identifiers
         # ===========
-        html_page = expression_uri + '/data.html'
-        xml_doc = expression_uri + '/data.xml'
-        rdf_doc = expression_uri + '/data.rdf'
+        html_page = expression_uri.replace(self.top_uri, self.doc_uri) + '/data.html'
+        xml_doc = expression_uri.replace(self.top_uri, self.doc_uri) + '/data.xml'
+        rdf_doc = expression_uri.replace(self.top_uri, self.doc_uri) + '/data.rdf'
         meta = self.createHrefMeta(expression_uri, self.FOAF['homePage'], html_page)
         if meta : mcontainer.appendChild(meta)
         meta = self.createHrefMeta(expression_uri, self.FOAF['page'], xml_doc)
