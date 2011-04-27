@@ -926,24 +926,46 @@ class MetaLexConverter():
         target_file.close()
 
     def writeRDF(self, filename, upload_url, format='turtle'):
-        self.graph.serialize(destination=filename, format=format)       
+        # Serialize to file
+        self.graph.serialize(destination=filename, format=format)     
+        logging.debug("Serialized to {0}".format(filename))  
         
         if upload_url :
             logging.info("Uploading RDF triples to : {0}".format(upload_url))
-            register_openers()
-             
-            data = {"data" : open(filename, "rb"), "dataFormat": format, "baseURI" : self.rdf_graph_uri }
-             
-            datagen, headers = multipart_encode(data)
-            request = urllib2.Request(upload_url, datagen, headers)
             
-            if 'user' in self.flags :
-                auth_string = "{0}:{1}".format(self.flags['user'],self.flags['pass'])
-                auth_string_b64 = base64.b64encode(auth_string)
-                request.add_header('Authorization','Basic '+auth_string_b64)
+            if self.flags['store'] == 'cliopatria' :
+                register_openers()
+                 
+                data = {"data" : open(filename, "rb"), "dataFormat": format, "baseURI" : self.rdf_graph_uri }
+                 
+                datagen, headers = multipart_encode(data)
+                request = urllib2.Request(upload_url, datagen, headers)
                 
-            reply = urllib2.urlopen(request).read()
-            logging.debug(reply)
+                if 'user' in self.flags :
+                    auth_string = "{0}:{1}".format(self.flags['user'],self.flags['pass'])
+                    auth_string_b64 = base64.b64encode(auth_string)
+                    request.add_header('Authorization','Basic '+auth_string_b64)
+                    
+                reply = urllib2.urlopen(request).read()
+                logging.debug(reply)
+            elif self.flags['store'] == '4store' :
+                upload_url = upload_url + "/data/" + self.rdf_graph_uri
+                logging.debug("Upload URL for 4Store : {0}".format(upload_url))
+                
+                with open(filename, "rb") as h:
+                    data = h.read() 
+    
+                request = urllib2.Request(upload_url, data)
+                if format == 'turtle' :
+                    request.add_header('Content-Type','application/x-turtle')
+                elif format == 'RDF/XML' :
+                    request.add_header('Content-Type','application/rdf+xml')
+                    
+                request.get_method = lambda: 'PUT'
+                reply = urllib2.urlopen(request).read()
+                logging.debug(reply)
+            else: 
+                logging.error("Store type not supported, or no storetype set.")
         
         
     def writeGraph(self, filename, format='pajek') :

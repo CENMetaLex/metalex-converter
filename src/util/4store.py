@@ -31,10 +31,7 @@ class FourStore():
              
             with open(f, "rb") as h:
                 data = h.read() 
-            
-#            data = {"data" : open(f, "rb") }
-             
-#            datagen, headers = multipart_encode(data)
+
             request = urllib2.Request(upload_url, data)
             request.add_header('Content-Type','application/x-turtle')
             request.get_method = lambda: 'PUT'

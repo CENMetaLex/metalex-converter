@@ -266,7 +266,7 @@ if __name__ == '__main__':
     
     
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'no_update': False, 'produce_full_graph': True}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'no_update': False, 'produce_full_graph': True}
 
         if '--log-to-file' in sys.argv:
             logging.basicConfig(filename='conversion.log',filemode='w',level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -309,6 +309,14 @@ if __name__ == '__main__':
         if '--graph-file' in sys.argv :
             flags['graph_file'] = sys.argv[sys.argv.index('--graph-file')+1]
             logging.info("Graph file set to: {0}".format(flags['graph_file']))
+            
+            
+        if '--store-type' in sys.argv :
+            flags['store'] = sys.argv[sys.argv.index('--store-type')+1]
+            if flags['store'] != 'cliopatria' and flags['store'] != '4store' :
+                flags['store'] = '4store'
+                logging.error("No compliant store type specified, use '4store' or 'cliopatria'. Will default to 4Store (NB: ClioPatria is compatible to Sesame)")
+            logging.info("Will use a {0} compliant upload format".format(flags['store']))
             
         if '--rdf-upload-url' in sys.argv :
             flags['rdf_upload_url'] = sys.argv[sys.argv.index('--rdf-upload-url')+1]
@@ -369,9 +377,11 @@ Licensed under the LGPL v3 (see http://www.gnu.org/licenses/lgpl-3.0.txt)
         --graph-file <file>     Output citation graph to specified file, default is '../out/full_graph.net'
         --report-file <file>    Output conversion report to specified file
         
-        --rdf-upload-url <url>  Sesame compliant RDF upload URL
-        -user                   Username for RDF upload (if required)
-        -pass                   Password for RDF upload (if required)
+        
+        --store-type [4store|cliopatria]
+        --rdf-upload-url <url>  RDF upload URL
+        -user                   Username for RDF upload (ClioPatria only, if required)
+        -pass                   Password for RDF upload (ClioPatria only, if required)
         
         --log-to-file           Log to conversion.log instead of screen
         """
