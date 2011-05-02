@@ -43,7 +43,7 @@ class FourStore():
                 print "Graph already loaded: {0}".format(graph_uri)
             
     def check_available(self,graph_uri):
-        q = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX metalex: <http://www.metalex.eu/schema/1.0#>\nASK { "+graph_uri+" rdf:type ?x .}"
+        q = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX metalex: <http://www.metalex.eu/schema/1.0#>\nASK { <"+graph_uri+"> rdf:type ?x .}"
         
         sparql = SPARQLWrapper("http://doc.metalex.eu:8000/sparql/")
         sparql.setQuery(q)
