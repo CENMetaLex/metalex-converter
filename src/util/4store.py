@@ -5,8 +5,8 @@ Created on 27 Apr 2011
 '''
 import glob
 import re
-from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
+from SPARQLWrapper import SPARQLWrapper, JSON
 import urllib2
 
 
@@ -25,21 +25,33 @@ class FourStore():
             
             upload_url = self.url + "/data/" + graph_uri
             
-            print f, upload_url 
+            if not self.check_available(graph_uri) :
+                print f, upload_url 
+                
+                register_openers()
+                 
+                with open(f, "rb") as h:
+                    data = h.read() 
+    
+                request = urllib2.Request(upload_url, data)
+                request.add_header('Content-Type','application/x-turtle')
+                request.get_method = lambda: 'PUT'
+                reply = urllib2.urlopen(request).read()
+                
+                print reply
+            else :
+                print "Graph already loaded: {0}".format(graph_uri)
             
-            register_openers()
-             
-            with open(f, "rb") as h:
-                data = h.read() 
-
-            request = urllib2.Request(upload_url, data)
-            request.add_header('Content-Type','application/x-turtle')
-            request.get_method = lambda: 'PUT'
-            reply = urllib2.urlopen(request).read()
-            
-            print reply
-            
-            
+    def check_available(self,graph_uri):
+        q = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX metalex: <http://www.metalex.eu/schema/1.0#>\nASK { "+graph_uri+" rdf:type ?x .}"
+        
+        sparql = SPARQLWrapper("http://doc.metalex.eu:8000/sparql/")
+        sparql.setQuery(q)
+        
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+    
+        return results['boolean']            
             
             
 
