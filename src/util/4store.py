@@ -73,6 +73,6 @@ class FourStore():
 if __name__ == '__main__':
     fs = FourStore('http://doc.metalex.eu:8000')
     
-    fs.uploadFiles('http://doc.metalex.eu/id/', '../../out')
+    fs.loadFiles('http://doc.metalex.eu/id/', '../../out')
             
             
