@@ -8,6 +8,7 @@ import re
 from poster.streaminghttp import register_openers
 from SPARQLWrapper import SPARQLWrapper, JSON
 import urllib2
+import subprocess
 
 
 
@@ -53,7 +54,21 @@ class FourStore():
     
         return results['boolean']            
             
+    def loadFiles(self, uriprefix, path):
+        mask = path + '/*.n3'
+        for f in glob.iglob(mask) :
+            chunks = re.split('/|_|\.', f)
+            graph_uri = uriprefix + chunks[-3] + '/' + chunks[-2]
+            print graph_uri        
+        
+            command = ['4s-import','metalex','--model',graph_uri,f]
             
+            p = subprocess.Popen(command)
+            p.wait()
+            (out,err) = p.communicate()
+            print out, err
+            
+
 
 if __name__ == '__main__':
     fs = FourStore('http://doc.metalex.eu:8000')
