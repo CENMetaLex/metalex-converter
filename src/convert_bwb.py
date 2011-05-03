@@ -191,6 +191,9 @@ def convertAll(bwbid_dict, flags):
         
         profile = Profile('./converter/bwb-mapping.txt')
         logging.info('Loaded conversion profile.')
+        
+        
+        
 
         for bwbid in bwbid_dict :
             last_bwbid = bwbid
@@ -269,9 +272,9 @@ if __name__ == '__main__':
         flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'no_update': False, 'produce_full_graph': True}
 
         if '--log-to-file' in sys.argv:
-            logging.basicConfig(filename='conversion.log',filemode='w',level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+            logging.basicConfig(filename='conversion.log',filemode='w',level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         else :
-            logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+            logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
         
         if '--no-inline-metadata' in sys.argv :
