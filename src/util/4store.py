@@ -63,10 +63,8 @@ class FourStore():
         
             command = ['4s-import','metalex','--model',graph_uri,f]
             
-            p = subprocess.Popen(command)
-            p.wait()
-            (out,err) = p.communicate()
-            print out, err
+            returncode = subprocess.call(command)
+            print "Return code: ", returncode
             
 
 
