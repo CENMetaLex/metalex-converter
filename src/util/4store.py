@@ -59,7 +59,7 @@ class FourStore():
         for f in glob.iglob(mask) :
             chunks = re.split('/|_|\.', f)
             graph_uri = uriprefix + chunks[-3] + '/' + chunks[-2]
-            print graph_uri        
+            print f, graph_uri        
         
             command = ['4s-import','metalex','--model',graph_uri,f]
             
