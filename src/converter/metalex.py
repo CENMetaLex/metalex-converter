@@ -42,6 +42,7 @@ from util import CiteGraph, ConversionReport
 from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
 import urllib2
+import urllib
 import base64
 import logging
 
@@ -1004,21 +1005,38 @@ class MetaLexConverter():
                 reply = urllib2.urlopen(request).read()
                 logging.debug(reply)
             elif self.flags['store'] == '4store' :
-                upload_url = upload_url + "/data/" + self.rdf_graph_uri
+                upload_url = upload_url + "/data/"
                 logging.debug("Upload URL for 4Store : {0}".format(upload_url))
                 
-                with open(filename, "rb") as h:
-                    data = h.read() 
-    
-                request = urllib2.Request(upload_url, data)
                 if format == 'turtle' :
-                    request.add_header('Content-Type','application/x-turtle')
+                    mime = 'application/x-turtle'
                 elif format == 'RDF/XML' :
-                    request.add_header('Content-Type','application/rdf+xml')
+                    mime = 'application/rdf+xml'
+                
+                graph = self.graph.serialize(format=format)
                     
-                request.get_method = lambda: 'PUT'
+                data = {"data" : graph, "mime-type": mime, "graph" : self.rdf_graph_uri }
+                     
+                data_encoded = urllib.urlencode(data)
+    
+                request = urllib2.Request(upload_url, data=data_encoded)
+    
                 reply = urllib2.urlopen(request).read()
+    
                 logging.debug(reply)
+                
+#                with open(filename, "rb") as h:
+#                    data = h.read() 
+#    
+#                request = urllib2.Request(upload_url, data)
+#                if format == 'turtle' :
+#                    request.add_header('Content-Type','application/x-turtle')
+#                elif format == 'RDF/XML' :
+#                    request.add_header('Content-Type','application/rdf+xml')
+#                    
+#                request.get_method = lambda: 'PUT'
+#                reply = urllib2.urlopen(request).read()
+#                logging.debug(reply)
             else: 
                 logging.error("Store type not supported, or no store type set. Was expecting one of cliopatria, 4store.")
         
