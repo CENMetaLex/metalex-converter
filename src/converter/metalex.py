@@ -1,4 +1,37 @@
 # -*- coding: utf-8 -*-
+'''
+MetaLex Converter
+=================
+
+@author: Rinke Hoekstra
+@contact: hoekstra@uva.nl
+@organization: Universiteit van Amsterdam
+@version: 0.1
+@status: beta
+@website: http://doc.metalex.eu
+@copyright: 2011, Rinke Hoekstra, Universiteit van Amsterdam
+
+@license: MetaLex Converter is free software, you can redistribute it and/or modify
+it under the terms of GNU Affero General Public License
+as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+You should have received a copy of the the GNU Affero
+General Public License, along with MetaLex Converter. If not, see
+
+
+Additional permission under the GNU Affero GPL version 3 section 7:
+
+If you modify this Program, or any covered work, by linking or
+combining it with other code, such other code is not for that reason
+alone subject to any of the requirements of the GNU Affero GPL
+version 3.
+
+@summary: This module defines the MetaLexConverter class which is a generic conversion script 
+for legal XML to CEN MetaLex XML, accompanying RDF and Pajek Networks
+'''
+
+
 
 import xml.dom.minidom
 import re
@@ -35,6 +68,7 @@ class MetaLexConverter():
     TIME = Namespace('http://www.w3.org/2006/time#')
     DCTERMS = Namespace('http://purl.org/dc/terms/')
     FOAF = Namespace('http://xmlns.com/foaf/0.1/')
+    SEM = Namespace('http://semanticweb.cs.vu.nl/2009/11/sem/')
 
    
     # Standard elements
@@ -135,6 +169,7 @@ class MetaLexConverter():
         self.graph.namespace_manager.bind('time',self.TIME)
         self.graph.namespace_manager.bind('dcterms',self.DCTERMS)
         self.graph.namespace_manager.bind('foaf',self.FOAF)
+        self.graph.namespace_manager.bind('sem',self.SEM)
 
         # Create a new citation graph...
         self.cg = CiteGraph()
@@ -521,6 +556,26 @@ class MetaLexConverter():
         meta = self.createPropertyMeta(expression_uri, self.DCTERMS['valid'], self.v)
         if meta : mcontainer.appendChild(meta)
         
+        # ===========
+        # Add a Simple Event Model description
+        # ===========
+        meta = self.createHrefMeta(self.creation_event_uri, self.t, self.SEM['Event'])
+        if meta : mcontainer.appendChild(meta) 
+        
+        meta = self.createHrefMeta(self.creation_event_uri, self.SEM['eventType'], self.MO['LegislativeModification'])
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createHrefMeta(self.creation_event_uri, self.SEM['hasTime'], date)
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createHrefMeta(date, self.t, self.SEM['Time'])
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createHrefMeta(date, self.SEM['timeType'], self.MO['Date'])
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createPropertyMeta(date, self.SEM['hasTimeStamp'], self.v)
+        if meta : mcontainer.appendChild(meta)
         
         # ===========
         # Add a Open Provenance Model process
@@ -965,7 +1020,7 @@ class MetaLexConverter():
                 reply = urllib2.urlopen(request).read()
                 logging.debug(reply)
             else: 
-                logging.error("Store type not supported, or no storetype set.")
+                logging.error("Store type not supported, or no store type set. Was expecting one of cliopatria, 4store.")
         
         
     def writeGraph(self, filename, format='pajek') :

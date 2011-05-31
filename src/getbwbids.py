@@ -1,5 +1,38 @@
-import sys, string
-import codecs
+# -*- coding: utf-8 -*-
+'''
+MetaLex Converter
+=================
+
+@author: Rinke Hoekstra
+@contact: hoekstra@uva.nl
+@organization: Universiteit van Amsterdam
+@version: 0.1
+@status: beta
+@website: http://doc.metalex.eu
+@copyright: 2011, Rinke Hoekstra, Universiteit van Amsterdam
+
+@license: MetaLex Converter is free software, you can redistribute it and/or modify
+it under the terms of GNU Affero General Public License
+as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+You should have received a copy of the the GNU Affero
+General Public License, along with MetaLex Converter. If not, see
+
+
+Additional permission under the GNU Affero GPL version 3 section 7:
+
+If you modify this Program, or any covered work, by linking or
+combining it with other code, such other code is not for that reason
+alone subject to any of the requirements of the GNU Affero GPL
+version 3.
+
+@summary: This module contains a script for converting the XML representation of the list of all BWB identifiers to a 
+Python dictionary, and storing it to a pickle file for use by the convert_bwb.py script
+
+'''
+
+import sys
 from xml.sax import saxutils
 import xml.parsers.expat
 import pickle
