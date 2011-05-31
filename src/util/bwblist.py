@@ -36,6 +36,11 @@ import sys
 from xml.sax import saxutils
 import xml.parsers.expat
 import pickle
+import urllib2
+import zipfile
+import StringIO
+from datetime import date
+import logging
 
 # --- The ContentHandler
 
@@ -56,7 +61,7 @@ class BWBListGenerator():
     # ContentHandler methods
         
     def startDocument(self):
-        self._out.write(u'<?xml version="1.0" encoding="utf-8"?>\n')
+        pass
 
     def startElement(self, name, attrs):
         if name == "__NS1:BWBId" :
@@ -143,21 +148,45 @@ class BWBListGenerator():
         self._out.write(u'<?%s %s?>' % (target, data))
 
 
+class DebugWriter():
+    
+    def write(self, text):
+        logging.debug(text)
 
-blg = BWBListGenerator()
+class BWBList():
+    
+    def __init__(self):
+        dw = DebugWriter()
+        self.blg = BWBListGenerator(dw)
+        
+        p = xml.parsers.expat.ParserCreate()
+        p.buffer_text = True
+        
+        p.StartElementHandler = self.blg.startElement
+        p.EndElementHandler = self.blg.endElement
+        p.CharacterDataHandler = self.blg.characters
+        
+        
+        bwbidlist_filename = 'BWBIdList.xml'
+        bwbidlist_url = 'http://wetten.overheid.nl/BWBIdService/BWBIdList.xml.zip'
+        pickle_filename = 'pickles/bwbid_list_{0}.pickle'.format(date.today())
+        
+        logging.info("Loading zipped BWB ID list from {0}.".format(bwbidlist_url))
+        response = urllib2.urlopen(bwbidlist_url)
+        bwbidlist_zipped_string = response.read()
+        bwbidlist_zipped_file = StringIO.StringIO(bwbidlist_zipped_string)
+        bwbidlist_zip = zipfile.ZipFile(bwbidlist_zipped_file)
+        logging.info("Unzipping BWB ID list to {0}.".format(bwbidlist_filename))
+        bwbidlist_zip.extract(bwbidlist_filename)
+        
+        logging.info("Loading and parsing BWB ID list from {0}.".format(bwbidlist_filename))
+        infile = file(bwbidlist_filename)
+        p.ParseFile(infile)
+        
+        logging.info("Dumping BWB ID list dictionary to {0}.".format(pickle_filename))
+        outfile = open(pickle_filename, 'w')
+        pickle.dump(self.blg.bwblist,outfile)
+        
+    def getBWBIds(self):
+        return self.blg.bwblist
 
-p = xml.parsers.expat.ParserCreate()
-p.buffer_text = True
-
-p.StartElementHandler = blg.startElement
-p.EndElementHandler = blg.endElement
-p.CharacterDataHandler = blg.characters
-
-try:
-    infile = file(sys.argv[1])
-    p.ParseFile(infile)
-
-    outfile = open(sys.argv[2], 'w')
-    pickle.dump(blg.bwblist,outfile)
-except :
-    print "Missing or incorrect command line arguments.\nUsage: python getbwbids.py <BWBIdList> <OutfilePickle>"

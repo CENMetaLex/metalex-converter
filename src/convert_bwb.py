@@ -37,6 +37,7 @@ from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from datetime import date
 from converter.metalex import MetaLexConverter
 from converter.util import Profile, CiteGraph
+from util.bwblist import BWBList
 import logging
 import codecs
 import csv
@@ -382,11 +383,10 @@ if __name__ == '__main__':
             convertAll(bwbid_dict, flags)
         elif '--all' in sys.argv :
             logging.info("Will proceed to process *all* sources from http://www.wetten.nl.\n")
-            pickle_file = 'pickles/bwbid_list.pickle'
-            logging.info("Pickle source: {0}\n".format(pickle_file))
-            id_list_file = open(pickle_file, 'r')
-            bwbid_dict = pickle.load(id_list_file)
-            id_list_file.close()
+            
+            bwblist = BWBList()
+            bwbid_dict = bwblist.getBWBIds()
+            
             convertAll(bwbid_dict,flags)
     else :
         print """BWB Converter v0.1a 
