@@ -80,16 +80,18 @@ def convert(bwbid, cite_graph, profile, reports, flags):
             logging.info("Some version of {0} already exists, skipping ...".format(bwbid))
             return
         
-    if flags['skip_if_existing'] :
-        if glob.glob('{0}{1}_*-*-*_ml.xml'.format(out_dir, bwbid)) :
-            logging.info("Some MetaLex XML version already exists, skipping ...")
-            return
+    
 
     logging.debug("Retrieving attributes from info URL")
     date_version, modification_type, abbreviation, title = getVersionInfo(bwbid)
     if not(date_version) :
         logging.warning("No version date for {0}. Skipping...".format(bwbid))
         return
+    
+    if flags['skip_if_existing'] :
+        if glob.glob('{0}{1}_{2}_ml.xml'.format(out_dir, bwbid, date_version)) :
+            logging.info("The MetaLex XML of this version already exists, skipping ...")
+            return
     
     logging.info("Title:               {0}".format(title))
     logging.info("Abbreviation:        {0}".format(abbreviation))
