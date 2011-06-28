@@ -307,7 +307,7 @@ if __name__ == '__main__':
     
     
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '../out/report.csv', 'data_dir': '../data/', 'out_dir' : '../out/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'no_update': False, 'produce_full_graph': True}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '/var/metalex/store/report.csv', 'data_dir': '/var/metalex/store/source-data/', 'out_dir' : '/var/metalex/store/data/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'no_update': False, 'produce_full_graph': True}
 
         if '--log-to-file' in sys.argv:
             logging.basicConfig(filename='conversion.log',filemode='w',level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
