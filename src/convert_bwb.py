@@ -126,8 +126,8 @@ def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
 #        print "Latest run >{}<".format(latest_run_str)
         latest_run_dtm = datetime.strptime(latest_run_str, '%Y-%m-%d')
         
-        if latest_change_dtm < latest_run_dtm :
-            logging.info("There were no updates to the CMS since the latest run ({0} is before {1}), skipping ...".format(latest_change_dtm.date(), latest_run_dtm.date()))
+        if latest_change_dtm < latest_run_dtm and glob.glob('{0}{1}*_ml.xml'.format(out_dir, bwbid)):
+            logging.info("A MetaLex file exists, and there were no updates to the CMS since the latest run ({0} is before {1}), skipping ...".format(latest_change_dtm.date(), latest_run_dtm.date()))
             return
 
     logging.debug("Retrieving attributes from info URL")
@@ -441,7 +441,7 @@ Licensed under the LGPL v3 (see http://www.gnu.org/licenses/lgpl-3.0.txt)
         
         --skip-if-existing      Skip conversion if MetaLex XML file already exists.
         --no-update             Skip conversion if some BWB XML version of the file already exists locally (useful for debugging)
-        --cms-based-update      Skip conversion if the latest update in CMS precedes date in 'latest_run' file.
+        --cms-based-update      Skip conversion if the latest update in CMS precedes date in 'latest_run' file (only skips successfully converted files)
         
         --data-dir <dir>        Location of locally available files for the conversion, default is '../data/'
         --out-dir <dir>         Location for target files of the conversion, default is '../out'

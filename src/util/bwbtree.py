@@ -11,7 +11,6 @@ import zipfile
 import StringIO
 from datetime import date
 import logging
-from pprint import pprint
 from xml.etree.ElementTree import ElementTree, register_namespace
 from glob import glob
 
