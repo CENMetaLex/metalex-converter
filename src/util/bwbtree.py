@@ -42,11 +42,15 @@ class BWBTree():
         logging.info("Unzipping BWB ID list to {0}.".format(bwbidlist_filename))
         bwbidlist_zip.extract(bwbidlist_filename)
         
-        logging.info("Loading and parsing BWB ID list from {0}.".format(bwbidlist_filename))
+        logging.info("Checking validity of BWB ID list in {0}".format(bwbidlist_filename))
+        
+        bwbidlist_checked_filename = self.checkBWBXML(bwbidlist_filename)
+        
+        logging.info("Loading and parsing BWB ID list from {0}.".format(bwbidlist_checked_filename))
         
         register_namespace('','http://schemas.overheid.nl/bwbidservice')
         tree = ElementTree()
-        tree.parse(bwbidlist_filename)
+        tree.parse(bwbidlist_checked_filename)
         
         
         self.pickFromTree(tree)
@@ -56,6 +60,27 @@ class BWBTree():
         logging.info("Dumping BWB ID list dictionary to {0}.".format(pickle_filename))
         outfile = open(pickle_filename, 'w')
         pickle.dump(self.bwbid_list,outfile)
+        
+    def checkBWBXML(self, bwbidlist_filename):
+        bwbidlist_checked_filename = 'checked_{0}'.format(bwbidlist_filename)
+        bwbidlist_file = open(bwbidlist_filename,'r')
+        bwbidlist_checked_file = open(bwbidlist_checked_filename,'w')
+        
+        firstline = bwbidlist_file.next()
+        bwbidlist_checked_file.write(firstline)
+        for line in bwbidlist_file :
+            if '<?xml' in line :
+                logging.error("ERROR: Found superfluous XML processing instruction in BWB ID list, returning only first part.")
+                before, match, after = line.partition('<?xml')
+                bwbidlist_checked_file.write(before)
+                bwbidlist_checked_file.close()
+                return bwbidlist_checked_filename
+            else :
+                bwbidlist_checked_file.write(line)
+        
+        logging.info("No problems found in BWB ID list XML...")
+        bwbidlist_checked_file.close()
+        return bwbidlist_checked_filename
     
     def pickFromTree(self, tree):
 #        print tostring(tree.getroot())
