@@ -34,10 +34,11 @@ Run 'python convert_bwb.py' for usage instructions
 
 
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
-from datetime import date
+from datetime import date, datetime
 from converter.metalex import MetaLexConverter
 from converter.util import Profile, CiteGraph
 from util.bwblist import BWBList
+from util.bwbtree import BWBTree
 import logging
 import codecs
 import csv
@@ -104,7 +105,7 @@ def getVersionInfo(bwbid):
     # No date, no version!
     return None, type, abbreviation, title
 
-def convert(bwbid, cite_graph, profile, reports, flags):
+def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
     data_dir = flags['data_dir']
     out_dir = flags['out_dir']
     
@@ -116,7 +117,18 @@ def convert(bwbid, cite_graph, profile, reports, flags):
             logging.info("Some version of {0} already exists, skipping ...".format(bwbid))
             return
         
-    
+    if flags['cms_based_update'] and flags['latest_run'] != 'never':
+        latest_change_str = bwbid_attrs['laatste']
+#        print "Latest change >{}<".format(latest_change_str)
+        latest_change_dtm = datetime.strptime(latest_change_str, '%Y-%m-%d')
+        
+        latest_run_str = flags['latest_run']
+#        print "Latest run >{}<".format(latest_run_str)
+        latest_run_dtm = datetime.strptime(latest_run_str, '%Y-%m-%d')
+        
+        if latest_change_dtm < latest_run_dtm :
+            logging.info("There were no updates to the CMS since the latest run ({0} is before {1}), skipping ...".format(latest_change_dtm.date(), latest_run_dtm.date()))
+            return
 
     logging.debug("Retrieving attributes from info URL")
     date_version, modification_type, abbreviation, title = getVersionInfo(bwbid)
@@ -238,7 +250,7 @@ def convertAll(bwbid_dict, flags):
             count += 1
             logging.info("Processing {0}/{1} ({2}%)".format(count, total, (float(count) / float(total)) * 100))
             try :
-                convert(bwbid, cg, profile, reports, flags)
+                convert(bwbid, bwbid_dict[bwbid], cg, profile, reports, flags)
             except KeyboardInterrupt:
                 logging.error("Conversion aborted on {0}".format(bwbid), exc_info=sys.exc_info())
                 break
@@ -253,6 +265,11 @@ def convertAll(bwbid_dict, flags):
         processReports(reports, profile, flags['report_file'])
 
         logging.info("Conversion of {0} complete".format(bwbid))
+        
+        tracking_file = open('latest_run','w')
+        tracking_file.write(str(date.today()))
+        tracking_file.close()
+        logging.info("Wrote latest run date ({0}) to file".format(str(date.today())))
 
     except IOError:
         logging.error("I/O Error in conversion of {0}.".format(last_bwbid),exc_info=sys.exc_info())
@@ -307,7 +324,17 @@ if __name__ == '__main__':
     
     
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'skip_if_existing': False, 'report_file': '/var/metalex/store/report.csv', 'data_dir': '/var/metalex/store/source-data/', 'out_dir' : '/var/metalex/store/data/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'no_update': False, 'produce_full_graph': True}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'cms_based_update': False, 'skip_if_existing': False, 'report_file': '/var/metalex/store/report.csv', 'data_dir': '/var/metalex/store/source-data/', 'out_dir' : '/var/metalex/store/data/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'no_update': False, 'produce_full_graph': True}
+
+        try:
+            latest_run_file = open('latest_run','r')
+            latest_run = latest_run_file.readline().strip(' \n')
+            latest_run_file.close()
+        except :
+            # First run, so set latest_run to 'never'
+            latest_run = "never"
+            
+        flags['latest_run'] = latest_run
 
         if '--log-to-file' in sys.argv:
             logging.basicConfig(filename='conversion.log',filemode='w',level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -336,6 +363,9 @@ if __name__ == '__main__':
         if '--no-update' in sys.argv :
             flags['no_update'] = True
             logging.info("Skipping if any XML version of BWB document already exists")
+        if '--cms-based-update' in sys.argv :
+            flags['cms_based_update'] = True
+            logging.info("Skipping if latest update in CMS precedes date in 'latest_run' file")
             
         
         if '--data-dir' in sys.argv :
@@ -384,7 +414,7 @@ if __name__ == '__main__':
         elif '--all' in sys.argv :
             logging.info("Will proceed to process *all* sources from http://www.wetten.nl.\n")
             
-            bwblist = BWBList()
+            bwblist = BWBTree()
             bwbid_dict = bwblist.getBWBIds()
             
             convertAll(bwbid_dict,flags)
@@ -411,6 +441,7 @@ Licensed under the LGPL v3 (see http://www.gnu.org/licenses/lgpl-3.0.txt)
         
         --skip-if-existing      Skip conversion if MetaLex XML file already exists.
         --no-update             Skip conversion if some BWB XML version of the file already exists locally (useful for debugging)
+        --cms-based-update      Skip conversion if the latest update in CMS precedes date in 'latest_run' file.
         
         --data-dir <dir>        Location of locally available files for the conversion, default is '../data/'
         --out-dir <dir>         Location for target files of the conversion, default is '../out'
