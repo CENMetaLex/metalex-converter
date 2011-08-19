@@ -24,7 +24,7 @@ tree = ElementTree()
 filelist = glob.glob("{}/*_ml.xml".format(DOCS_DIR))
 
 
-schema = Schema(uri=ID,valid=DATETIME,title=TEXT)
+schema = Schema(uri=ID(stored=True),valid=DATETIME(stored=True),title=TEXT)
 
 # should become /var/metalex/store/index
 if not os.path.exists(INDEX_DIR) :
