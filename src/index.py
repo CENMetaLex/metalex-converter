@@ -14,10 +14,10 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from datetime import datetime
 
 SPARQL_ENDPOINT = "http://doc.metalex.eu:8000/sparql/"
-#INDEX_DIR = "/var/metalex/store/index"
-INDEX_DIR = "index"
-#DOCS_DIR = "/var/metalex/store/data"
-DOCS_DIR = ".."
+INDEX_DIR = "/var/metalex/store/index"
+#INDEX_DIR = "index"
+DOCS_DIR = "/var/metalex/store/data"
+#DOCS_DIR = ".."
 
 tree = ElementTree()
 
