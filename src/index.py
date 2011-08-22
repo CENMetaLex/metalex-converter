@@ -4,7 +4,7 @@ Created on 19 Aug 2011
 @author: hoekstra
 '''
 from whoosh.index import create_in, open_dir
-from whoosh.fields import ID, DATETIME, TEXT, Schema, Term
+from whoosh.fields import ID, DATETIME, TEXT, Schema
 from whoosh.query import *
 from whoosh.qparser import QueryParser
 import os.path
