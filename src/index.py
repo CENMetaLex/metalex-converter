@@ -4,7 +4,7 @@ Created on 19 Aug 2011
 @author: hoekstra
 '''
 from whoosh.index import create_in, open_dir
-from whoosh.fields import ID, DATETIME, TEXT, Schema
+from whoosh.fields import ID, DATETIME, TEXT, Schema, Term
 from whoosh.query import *
 from whoosh.qparser import QueryParser
 import os.path
@@ -24,7 +24,7 @@ tree = ElementTree()
 filelist = glob.glob("{}/*_ml.xml".format(DOCS_DIR))
 
 
-schema = Schema(uri=ID(stored=True),valid=DATETIME(stored=True),title=TEXT)
+schema = Schema(uri=ID(stored=True),valid=DATETIME(stored=True),title=TEXT,ctitle=TEXT)
 
 # should become /var/metalex/store/index
 if not os.path.exists(INDEX_DIR) :
@@ -57,10 +57,11 @@ for f in filelist :
                 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
                 
-                SELECT DISTINCT ?title ?date WHERE {
+                SELECT DISTINCT ?title ?date ?ctitle WHERE {
                    <"""+uri+"""> a metalex:BibliographicExpression .
                    <"""+uri+"""> dcterms:valid ?date .
                    <"""+uri+"""> dcterms:title ?title .
+                   OPTIONAL { <"""+uri+"""> dcterms:alternative ?ctitle . }
                 } """
                 
     
@@ -77,9 +78,15 @@ for f in filelist :
                 
                 valid_date = datetime.strptime(valid,'%Y-%m-%d')
                 
+                if 'ctitle' in row :
+                    ctitle = row['ctitle']['value']
+                    writer.add_document(uri=uri.decode('utf-8'),title=title.decode('utf-8'), ctitle=ctitle.decode('utf-8'), valid=valid_date)
+                else :
+                    writer.add_document(uri=uri.decode('utf-8'),title=title.decode('utf-8'), valid=valid_date)
+                    ctitle = ''
                 
-                writer.add_document(uri=uri.decode('utf-8'),title=title.decode('utf-8'),valid=valid_date)
-                print uri, title, valid
+                
+                print uri, title, ctitle, valid
             
         
     except Exception as e:
