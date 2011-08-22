@@ -91,6 +91,7 @@ for f in filelist :
         
     except Exception as e:
         print "Some error: {}".format(e)
+        print e
         
 writer.commit()
 
