@@ -79,7 +79,7 @@ for f in filelist :
                 
                 valid_date = datetime.strptime(valid,'%Y-%m-%d')
                 
-                if 'ctitle' in row :
+                if 'value' in row['ctitle'] :
                     ctitle = row['ctitle']['value']
                     writer.add_document(uri=uri.decode('utf-8'),title=title.decode('utf-8'), ctitle=ctitle.decode('utf-8'), valid=valid_date)
                 else :
