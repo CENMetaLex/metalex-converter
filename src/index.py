@@ -73,6 +73,7 @@ for f in filelist :
             
             
             for row in sparql_results['results']['bindings'] :
+                print row
                 title = row['title']['value']
                 valid = row['date']['value']
                 
