@@ -422,7 +422,7 @@ if __name__ == '__main__':
     else :
         print """BWB Converter v0.1a 
 Copyright (c) 2011, Rinke Hoekstra, Universiteit van Amsterdam
-Licensed under the LGPL v3 (see http://www.gnu.org/licenses/lgpl-3.0.txt)
+Licensed under the AGPL v3 (see http://www.gnu.org/licenses/agpl-3.0.txt)
         
 
         Usage:
