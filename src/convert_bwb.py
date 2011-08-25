@@ -39,6 +39,7 @@ from converter.metalex import MetaLexConverter
 from converter.util import Profile, CiteGraph
 from util.bwblist import BWBList
 from util.bwbtree import BWBTree
+from util.rssfeed import RSSFeed
 import logging
 import codecs
 import csv
@@ -251,7 +252,7 @@ def convertAll(bwbid_dict, flags):
             logging.debug("Processing {0}/{1} ({2}%)".format(count, total, (float(count) / float(total)) * 100))
             try :
                 convert(bwbid, bwbid_dict[bwbid], cg, profile, reports, flags)
-                logging.debug("Conversion of {} complete.").format(bwbid)
+                logging.debug("Conversion of {} complete.".format(bwbid))
             except KeyboardInterrupt:
                 logging.error("Conversion aborted on {0}".format(bwbid), exc_info=sys.exc_info())
                 break
