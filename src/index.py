@@ -81,7 +81,6 @@ for f in filelist :
 
 # Get all Expression URIs that realise the works we just found
 for bwbid in bwbid_set :
-    print bwbid
 
     work_uri = "http://doc.metalex.eu/id/{}".format(bwbid)
 
