@@ -110,11 +110,11 @@ def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
     out_dir = flags['out_dir']
     
     
-    logging.info("BWB ID:              {0}".format(bwbid))
+    logging.debug("BWB ID:              {0}".format(bwbid))
     
     if flags['no_update'] :
         if glob.glob('{0}{1}_*-*-*.xml'.format(data_dir, bwbid)) :
-            logging.info("Some version of {0} already exists, skipping ...".format(bwbid))
+            logging.debug("Some version of {0} already exists, skipping ...".format(bwbid))
             return
         
     if flags['cms_based_update'] and flags['latest_run'] != 'never':
@@ -127,10 +127,10 @@ def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
         latest_run_dtm = datetime.strptime(latest_run_str, '%Y-%m-%d')
         
         if latest_change_dtm < latest_run_dtm and glob.glob('{0}{1}*_ml.xml'.format(out_dir, bwbid)):
-            logging.info("A MetaLex file exists, and there were no updates to the CMS since the latest run ({0} is before {1}), skipping ...".format(latest_change_dtm.date(), latest_run_dtm.date()))
+            logging.debug("A MetaLex file exists, and there were no updates to the CMS since the latest run ({0} is before {1}), skipping ...".format(latest_change_dtm.date(), latest_run_dtm.date()))
             return
 
-    logging.debug("Retrieving attributes from info URL")
+    logging.info("Retrieving attributes from info URL")
     date_version, modification_type, abbreviation, title = getVersionInfo(bwbid)
     if not(date_version) :
         logging.warning("No version date for {0}. Skipping...".format(bwbid))
@@ -138,7 +138,7 @@ def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
     
     if flags['skip_if_existing'] :
         if glob.glob('{0}{1}_{2}_ml.xml'.format(out_dir, bwbid, date_version)) :
-            logging.info("The MetaLex XML of this version ({0}) already exists, skipping ...".format(date_version))
+            logging.debug("The MetaLex XML of this version ({0}) already exists, skipping ...".format(date_version))
             return
     
     logging.info("Title:               {0}".format(title))
@@ -160,14 +160,14 @@ def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
     source_doc_uri = "http://wetten.overheid.nl/xml.php?regelingID={0}".format(bwbid)
     if not os.path.isfile(source_doc_filename) :
         # First open the BWB document from URL and save it to a file. Ensure proper encoding
-        logging.info("Loading {0}".format(source_doc_uri))
+        logging.debug("Loading {0}".format(source_doc_uri))
         socket = urllib2.urlopen(source_doc_uri)
         # Parse regulation into DOM tree
         doc = xml.dom.minidom.parse(socket)
         # Close socket to URL or file
         socket.close()
         logging.debug("(done)")
-        logging.info("Storing {0}".format(source_doc_filename))
+        logging.debug("Storing {0}".format(source_doc_filename))
         # Save a copy of the file in the data cache
         bwb_file = codecs.open(source_doc_filename, 'w')
         bwb_file.write(doc.toprettyxml(encoding = 'utf-8'))
@@ -175,7 +175,7 @@ def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
         logging.debug("(done)")
 
     if not doc :
-        logging.info("Loading {0}".format(source_doc_filename))
+        logging.debug("Loading {0}".format(source_doc_filename))
         # Open the BWB document from file
         socket = open(source_doc_filename, 'r')
         # Parse regulation into DOM tree
@@ -195,22 +195,22 @@ def convert(bwbid, bwbid_attrs, cite_graph, profile, reports, flags):
     
         logging.debug("Storing output to files")
         # print ml_converter.printXML()
-        logging.info("Writing {0}".format(target_doc_filename))
+        logging.debug("Writing {0}".format(target_doc_filename))
         ml_converter.writeXML(target_doc_filename)
         logging.debug("(done)")
         
         if flags['produce_rdf'] :
-            logging.info("Writing {0}".format(target_rdf_filename))
+            logging.debug("Writing {0}".format(target_rdf_filename))
             ml_converter.writeRDF(target_rdf_filename, flags['rdf_upload_url'], 'turtle')
             logging.debug("(done)")
         if flags['produce_graph'] :
-            logging.info("Writing {0}".format(target_net_filename))
+            logging.debug("Writing {0}".format(target_net_filename))
             ml_converter.writeGraph(target_net_filename, 'pajek')
             logging.debug("(done)")
         logging.debug("(done storing to files)")
     
         if cite_graph != None and flags['produce_graph'] and flags['produce_full_graph']:
-            logging.info("Appending citation graph")
+            logging.debug("Appending citation graph")
             cite_graph.append(ml_converter.cg)
             logging.debug("(done)")
     
@@ -248,15 +248,16 @@ def convertAll(bwbid_dict, flags):
         for bwbid in bwbid_dict :
             last_bwbid = bwbid
             count += 1
-            logging.info("Processing {0}/{1} ({2}%)".format(count, total, (float(count) / float(total)) * 100))
+            logging.debug("Processing {0}/{1} ({2}%)".format(count, total, (float(count) / float(total)) * 100))
             try :
                 convert(bwbid, bwbid_dict[bwbid], cg, profile, reports, flags)
+                logging.debug("Conversion of {} complete.").format(bwbid)
             except KeyboardInterrupt:
                 logging.error("Conversion aborted on {0}".format(bwbid), exc_info=sys.exc_info())
                 break
 
         if flags['produce_graph'] and flags['produce_full_graph']:
-            logging.info("Writing full graph to file \'{0}\'...".format(flags['graph_file']))
+            logging.debug("Writing full graph to file \'{0}\'...".format(flags['graph_file']))
             target_file = open(flags['graph_file'], 'w')
             target_file.write(cg.writePajek())
             target_file.close()
@@ -264,7 +265,7 @@ def convertAll(bwbid_dict, flags):
 
         processReports(reports, profile, flags['report_file'])
 
-        logging.info("Conversion of {0} complete".format(bwbid))
+        logging.info("Conversion complete.")
         
         tracking_file = open('latest_run','w')
         tracking_file.write(str(date.today()))

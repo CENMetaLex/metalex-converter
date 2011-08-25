@@ -73,7 +73,7 @@ class MetaLexConverter():
 
    
     # Standard elements
-    source_root = "source_root"
+    root = "root"
     id = "id"
     hc = "hcontainer"
     hct = "hcontainer_text"
@@ -82,7 +82,7 @@ class MetaLexConverter():
     b = "block"
     i = "inline"
     ht = "htitle"
-    r = "source_root"
+    r = "root"
     mc = "mcontainer"
     ms = "milestone"
     m = "meta"
@@ -140,7 +140,7 @@ class MetaLexConverter():
         self.source_doc = doc
         self.source_doc_uri = source_doc_uri
         # Create the target document
-        self.target_doc = xml.dom.minidom.getDOMImplementation().createDocument(self.MS, "source_root", None)
+        self.target_doc = xml.dom.minidom.getDOMImplementation().createDocument(self.MS, self.root, None)
 
         # Make sure we create a new RDF graph for every document
         self.graph = ConjunctiveGraph()
@@ -217,7 +217,7 @@ class MetaLexConverter():
             self.handleMetadata(target_root, None, expression_uri, work_uri, {}, additional_attrs)
             return self.report.getReport()
         
-        source_root = self.source_doc.getElementsByTagName(self.profile.lookup('root'))[0]
+        source_root = self.source_doc.getElementsByTagName(self.profile.lookup(self.root))[0]
         lang_tag = self.setLanguageTag(source_root, target_root, "")
         expression_uri = self.getExpressionURI(work_uri, lang_tag)
         self.rdf_graph_uri = expression_uri   
@@ -248,7 +248,7 @@ class MetaLexConverter():
         self.handleMetadata(target_root, None, expression_uri, work_uri, source_root.attributes, additional_attrs)
         
         # Report the substitution
-        self.report.addSubstitution(self.source_root)
+        self.report.addSubstitution(self.root)
 
         for element in source_root.childNodes :
             self.handle(element,target_root,work_uri,work_uri,expression_uri,target_root, lang_tag)
@@ -1006,7 +1006,7 @@ class MetaLexConverter():
                 logging.debug(reply)
             elif self.flags['store'] == '4store' :
                 upload_url = upload_url + "/data/"
-                logging.debug("Upload URL for 4Store : {0}".format(upload_url))
+                logging.info("Upload URL for 4Store : {0}".format(upload_url))
                 
                 if format == 'turtle' :
                     mime = 'application/x-turtle'
