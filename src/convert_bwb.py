@@ -81,7 +81,7 @@ def getVersionInfo(bwbid):
                     abbreviation = None
                 continue
             
-            match = re.search(r'<tr.*?><td.*?><p>(<b>)?(\d\d)-(\d\d)-(\d\d\d\d)(</b>)?</p></td><td.*?>(.*?)</td><td.*?>(.*?)</td>', str(row))
+            match = re.search(r'<tr.*?><td.*?>(<a.*?>)?<p>(<b>)?(\d\d)-(\d\d)-(\d\d\d\d)(</b>)?(</a>)?</p></td><td.*?>(.*?)</td><td.*?>(.*?)</td>', str(row))
             if match :
 #                logging.debug("1 pre {0}", match.group(5))
                 if match.group(5) != "" and match.group(5) != "<p></p>":
