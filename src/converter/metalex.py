@@ -671,7 +671,7 @@ class MetaLexConverter():
         html_page = expression_uri.replace(self.top_uri, self.doc_uri) + '/data.html'
         xml_doc = expression_uri.replace(self.top_uri, self.doc_uri) + '/data.xml'
         rdf_doc = expression_uri.replace(self.top_uri, self.doc_uri) + '/data.rdf'
-        meta = self.createHrefMeta(expression_uri, self.FOAF['homePage'], html_page)
+        meta = self.createHrefMeta(expression_uri, self.FOAF['homepage'], html_page)
         if meta : mcontainer.appendChild(meta)
         meta = self.createHrefMeta(expression_uri, self.FOAF['page'], xml_doc)
         if meta : mcontainer.appendChild(meta)
@@ -987,7 +987,7 @@ class MetaLexConverter():
         logging.debug("Serialized to {0}".format(filename))  
         
         if upload_url :
-            logging.info("Uploading RDF triples to : {0}".format(upload_url))
+            logging.debug("Uploading RDF triples to : {0}".format(upload_url))
             
             if self.flags['store'] == 'cliopatria' :
                 register_openers()
@@ -1006,7 +1006,7 @@ class MetaLexConverter():
                 logging.debug(reply)
             elif self.flags['store'] == '4store' :
                 upload_url = upload_url + "/data/"
-                logging.info("Upload URL for 4Store : {0}".format(upload_url))
+                logging.debug("Upload URL for 4Store : {0}".format(upload_url))
                 
                 if format == 'turtle' :
                     mime = 'application/x-turtle'
