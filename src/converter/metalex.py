@@ -763,9 +763,9 @@ class MetaLexConverter():
     def getHContainerWorkURI(self, node, base_work_id, index):
         try :
             nr = self.getText(node.getElementsByTagName("nr")[0].childNodes)
-            return "{0}/{1}/{2}".format(base_work_id,node.localName,nr.strip())
+            return "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
         except :
-            return "{0}/{1}/{2}".format(base_work_id,node.localName,index)
+            return "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),index)
             
     def createClassAttribute(self, node):
         new_class = self.target_doc.createAttributeNS(str(self.XHTML),self.cl)
@@ -1084,7 +1084,14 @@ class MetaLexConverter():
         if lang_tag == "":
             expression_uri = work_uri + "/" + self.v
         else:
-            expression_uri = work_uri + "/" + lang_tag + "/" + self.v
+            try :
+                expression_uri = work_uri + "/" + lang_tag + "/" + self.v
+            except Exception as e:
+                logging.error("Decoding problem:")
+                logging.error(self.v)
+                logging.error(work_uri)
+                logging.error(lang_tag)
+                raise(e)
             
         return expression_uri
 
