@@ -45,6 +45,8 @@ import urllib2
 import urllib
 import base64
 import logging
+import os
+import subprocess
 
 
 
@@ -1037,8 +1039,39 @@ class MetaLexConverter():
 #                request.get_method = lambda: 'PUT'
 #                reply = urllib2.urlopen(request).read()
 #                logging.debug(reply)
+            elif self.flags['store'] == 'virtuoso':
+                logging.debug("Loading into Virtuoso using 'isql-v'")
+                
+                password = self.flags['virtuoso_pw']
+                
+                if format == 'turtle':
+                    method = 'DB.DBA.TTLP_MT'
+                elif format == 'RDF/XML':
+                    method = 'RDF_LOAD_RDFXML_MT' 
+                else :
+                    logging.error("Upload format not supported!")
+                    return
+                
+                
+                absolute_filename = os.path.abspath(filename)
+                
+                command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | isql-v -U dba -P {}'.format(method, absolute_filename, self.rdf_graph_uri, password )
+                
+                try :
+                    out = subprocess.check_output(command)
+                    logging.info(out)
+                except Exception as e:
+                    logging.error("Could not load file into virtuoso")
+                    
+                try :
+                    command = 'echo "checkpoint;" | isql-v -U dba -P {}'.format(password)
+                    out = subprocess.check_output(command)
+                    logging.info(out)
+                except Exception as e :
+                    logging.error("Could not create checkpoint")
+                
             else: 
-                logging.error("Store type not supported, or no store type set. Was expecting one of cliopatria, 4store.")
+                logging.error("Store type not supported, or no store type set. Was expecting one of cliopatria, 4store, virtuoso.")
         
         
     def writeGraph(self, filename, format='pajek') :
