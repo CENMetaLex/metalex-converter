@@ -326,7 +326,7 @@ if __name__ == '__main__':
     
     
     if len(sys.argv) > 1:
-        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'cms_based_update': False, 'skip_if_existing': False, 'report_file': '/var/metalex/store/report.csv', 'data_dir': '/var/metalex/store/source-data/', 'out_dir' : '/var/metalex/store/data/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'no_update': False, 'produce_full_graph': True}
+        flags = {'inline_metadata': True, 'produce_rdf': True, 'produce_graph': True, 'produce_report': True, 'cms_based_update': False, 'skip_if_existing': False, 'report_file': '/var/metalex/store/report.csv', 'data_dir': '/var/metalex/store/source-data/', 'out_dir' : '/var/metalex/store/data/', 'graph_file': '../out/full_graph_{0}.net'.format(date.today()), 'rdf_upload_url': None, 'store': '4store', 'virtuoso_pw': 'dba','no_update': False, 'produce_full_graph': True}
 
         try:
             latest_run_file = open('latest_run','r')
@@ -387,10 +387,14 @@ if __name__ == '__main__':
             
         if '--store-type' in sys.argv :
             flags['store'] = sys.argv[sys.argv.index('--store-type')+1]
-            if flags['store'] != 'cliopatria' and flags['store'] != '4store' :
+            if flags['store'] != 'cliopatria' and flags['store'] != '4store' and flags['store'] != 'virtuoso' :
                 flags['store'] = '4store'
-                logging.error("No compliant store type specified, use '4store' or 'cliopatria'. Will default to 4Store (NB: ClioPatria is compatible to Sesame)")
+                logging.error("No compliant store type specified, use '4store', 'cliopatria' or 'virtuoso'. Will default to 4Store (NB: ClioPatria is compatible with Sesame)")
             logging.info("Will use a {0} compliant upload format".format(flags['store']))
+        
+        if '--virtuoso-pw' in sys.argv :
+            flags['virtuoso_pw'] = sys.argv[sys.argv.index('--virtuoso-pw')+1]
+            logging.info('Set non standard password for "dba" user in virtuoso (using "isql-v" commandline tool)')
             
         if '--rdf-upload-url' in sys.argv :
             flags['rdf_upload_url'] = sys.argv[sys.argv.index('--rdf-upload-url')+1]
