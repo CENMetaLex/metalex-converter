@@ -40,8 +40,8 @@ def load_file(filename, password='dba', format='turtle'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bulk load files into Virtuoso')
     parser.add_argument('mask', help='File mask')
-    parser.add_argument('-p', '--password', nargs='?', type=str, default='dba', help='Password of the "dba" user in Virtuoso')
-    parser.add_argument('-f', '--format', nargs='?', type=str, default='turtle', help='Format of the file, may be "turtle" or "RDF/XML"')
+    parser.add_argument('-p', '--password', type=str, default='dba', help='Password of the "dba" user in Virtuoso')
+    parser.add_argument('-f', '--format', type=str, default='turtle', help='Format of the file, may be "turtle" or "RDF/XML"')
     args = parser.parse_args()
     
     load_files(args.mask, args.password, args.format)
