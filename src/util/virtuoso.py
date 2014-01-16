@@ -14,7 +14,6 @@ def load_files(mask, password='dba', format='turtle'):
 def load_file(filename, password='dba', format='turtle'):
     logging.debug("Loading into Virtuoso using 'isql-v'")
 
-    print filename
     m = re.search(r'(?P<bwbid>BWB\w\d+)_(?P<date>\d\d\d\d-\d\d-\d\d)',filename)
     
     graph_uri = "http://doc.metalex.eu/id/{}/{}".format(m.group('bwbid'),m.group('date'))
@@ -28,7 +27,7 @@ def load_file(filename, password='dba', format='turtle'):
         logging.error("Upload format not supported!")
         return
 
-    command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | isql-v -U dba -P {}'.format(method, absolute_filename, graph_uri, password )
+    command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | isql-v -U dba -P {}'.format(method, filename, graph_uri, password )
 
     try :
         out = subprocess.check_output(command)
