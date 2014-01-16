@@ -27,7 +27,7 @@ def load_file(filename, password='dba', format='turtle'):
         logging.error("Upload format not supported!")
         return
 
-    command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | isql-v -U dba -P {}'.format(method, filename, graph_uri, password )
+    command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | /usr/local/bin/isql-v -U dba -P {}'.format(method, filename, graph_uri, password )
 
     try :
         logging.debug(command)
@@ -35,6 +35,7 @@ def load_file(filename, password='dba', format='turtle'):
         logging.info(out)
     except Exception as e:
         logging.error("Could not load file into virtuoso")
+        raise e
     
     try :
         command = 'echo "checkpoint;" | isql-v -U dba -P {}'.format(password)
@@ -43,11 +44,10 @@ def load_file(filename, password='dba', format='turtle'):
         logging.info(out)
     except Exception as e :
         logging.error("Could not create checkpoint")
+        raise e
     
     
 if __name__ == '__main__':
-    
-    logging.setLevel(logging.DEBUG)
     
     parser = argparse.ArgumentParser(description='Bulk load files into Virtuoso')
     parser.add_argument('mask', help='File mask')
