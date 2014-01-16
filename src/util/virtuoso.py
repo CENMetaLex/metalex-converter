@@ -30,14 +30,15 @@ def load_file(filename, password='dba', format='turtle'):
     command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | isql-v -U dba -P {}'.format(method, filename, graph_uri, password )
 
     try :
+        logging.debug(command)
         out = subprocess.check_output(command)
         logging.info(out)
     except Exception as e:
-        logging.info(out)
         logging.error("Could not load file into virtuoso")
     
     try :
         command = 'echo "checkpoint;" | isql-v -U dba -P {}'.format(password)
+        logging.debug(command)
         out = subprocess.check_output(command)
         logging.info(out)
     except Exception as e :
