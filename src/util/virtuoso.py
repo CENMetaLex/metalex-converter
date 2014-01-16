@@ -16,7 +16,7 @@ def load_file(filename, password='dba', format='turtle'):
 
     match = re.search(r'(?P<bwbid>BWB\w\d+)_(?P<date>.+)\.\w+',filename)
     
-    graph_uri = "http://doc.metalex.eu/id/{}/{}".format(match.group('bwbid',match.group('date'))
+    graph_uri = "http://doc.metalex.eu/id/{}/{}".format(match.group('bwbid'),match.group('date'))
 
 
     if format == 'turtle':
