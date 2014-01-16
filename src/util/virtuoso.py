@@ -33,6 +33,7 @@ def load_file(filename, password='dba', format='turtle'):
         out = subprocess.check_output(command)
         logging.info(out)
     except Exception as e:
+        logging.info(out)
         logging.error("Could not load file into virtuoso")
     
     try :
@@ -40,6 +41,7 @@ def load_file(filename, password='dba', format='turtle'):
         out = subprocess.check_output(command)
         logging.info(out)
     except Exception as e :
+        logging.info(out)
         logging.error("Could not create checkpoint")
     
     
