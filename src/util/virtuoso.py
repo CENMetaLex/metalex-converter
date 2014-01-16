@@ -3,15 +3,21 @@ import os
 import subprocess
 import glob
 import argparse
+import re
 
 def load_files(mask, password='dba', format='turtle'):
     
-    for filename in glob.glob(path):
+    for filename in glob.glob(mask):
         logging.info('Loading {}'.format(filename))
         load_file(password, os.path.abspath(filename))
     
 def load_file(filename, password='dba', format='turtle'):
     logging.debug("Loading into Virtuoso using 'isql-v'")
+
+    match = re.search(r'(?P<bwbid>BWB\w\d+)_(?P<date>.+)\.\w+',filename)
+    
+    graph_uri = "http://doc.metalex.eu/id/{}/{}".format(bwbid,date)
+
 
     if format == 'turtle':
         method = 'DB.DBA.TTLP_MT'
@@ -21,7 +27,7 @@ def load_file(filename, password='dba', format='turtle'):
         logging.error("Upload format not supported!")
         return
 
-    command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | isql-v -U dba -P {}'.format(method, absolute_filename, self.rdf_graph_uri, password )
+    command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\');" | isql-v -U dba -P {}'.format(method, absolute_filename, graph_uri, password )
 
     try :
         out = subprocess.check_output(command)
