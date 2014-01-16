@@ -47,7 +47,7 @@ def load_file(filename, password='dba', format='turtle'):
     
 if __name__ == '__main__':
     
-    logging.setlevel(logging.DEBUG)
+    logging.setLevel(logging.DEBUG)
     
     parser = argparse.ArgumentParser(description='Bulk load files into Virtuoso')
     parser.add_argument('mask', help='File mask')
