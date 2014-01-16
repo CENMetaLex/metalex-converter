@@ -9,15 +9,15 @@ def load_files(mask, password='dba', format='turtle'):
     
     for filename in glob.glob(mask):
         logging.info('Loading {}'.format(filename))
-        load_file(password, os.path.abspath(filename))
+        load_file(os.path.abspath(filename), password, format)
     
 def load_file(filename, password='dba', format='turtle'):
     logging.debug("Loading into Virtuoso using 'isql-v'")
 
     print filename
-    match = re.search(r'(?P<bwbid>BWB\w\d+)_(?P<date>\d\d\d\d-\d\d-\d\d)',filename)
+    m = re.search(r'(?P<bwbid>BWB\w\d+)_(?P<date>\d\d\d\d-\d\d-\d\d)',filename)
     
-    graph_uri = "http://doc.metalex.eu/id/{}/{}".format(match.group('bwbid'),match.group('date'))
+    graph_uri = "http://doc.metalex.eu/id/{}/{}".format(m.group('bwbid'),m.group('date'))
 
 
     if format == 'turtle':
