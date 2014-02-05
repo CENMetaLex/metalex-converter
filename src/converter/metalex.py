@@ -122,6 +122,8 @@ class MetaLexConverter():
     next = MO["next"]
     cites = MO["cites"]
     result = MO["result"]
+    hc_parent = MO["parent"]
+    
     
     sameAs = OWL["sameAs"]
     
@@ -253,7 +255,7 @@ class MetaLexConverter():
         self.report.addSubstitution(self.root)
 
         for element in source_root.childNodes :
-            self.handle(element,target_root,work_uri,work_uri,expression_uri,target_root, lang_tag)
+            self.handle(element,target_root,work_uri,work_uri,expression_uri,target_root, lang_tag, hcontainer_parent = expression_uri)
         
         logging.debug("({0} done)".format(self.source_root_uri))
         
@@ -262,7 +264,7 @@ class MetaLexConverter():
 
 
 
-    def handle(self, source_node, target_parent_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index = 1):
+    def handle(self, source_node, target_parent_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index = 1, hcontainer_parent = None):
         # =====
         # TODO: 
         # 1) Check correct reference to parent source_node from elements that may have been moved to ensure conformance to CML
@@ -288,10 +290,11 @@ class MetaLexConverter():
                 
                 ontology_type = self.o + source_node.tagName
                 
+                additional_attrs = {self.t : ontology_type }
                 if short_expression_uri != expression_uri :
-                    additional_attrs = {self.t : ontology_type, self.sameAs: short_expression_uri }
-                else :
-                    additional_attrs = {self.t : ontology_type }
+                    additional_attrs[self.sameAs] = short_expression_uri 
+                if hcontainer_parent :
+                    additional_attrs[self.hc_parent] = hcontainer_parent
 
                 self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
                 
@@ -302,7 +305,7 @@ class MetaLexConverter():
                 for element in source_node.childNodes :
                     if element.nodeType != element.TEXT_NODE:
                         index_counter += 1
-                    self.handle(element,target_node,work_uri, work_uri, expression_uri,target_node,lang_tag,index_counter)
+                    self.handle(element,target_node,work_uri, work_uri, expression_uri,target_node,lang_tag,index_counter,hcontainer_parent=expression_uri)
 
             # ==========
             # Deal with Text-HContainers (such as articles)
@@ -323,10 +326,11 @@ class MetaLexConverter():
                 
                 ontology_type = self.o + source_node.tagName
                 
+                additional_attrs = {self.t : ontology_type }
                 if short_expression_uri != expression_uri :
-                    additional_attrs = {self.t : ontology_type, self.sameAs: short_expression_uri }
-                else :
-                    additional_attrs = {self.t : ontology_type }
+                    additional_attrs[self.sameAs] = short_expression_uri 
+                if hcontainer_parent :
+                    additional_attrs[self.hc_parent] = hcontainer_parent
                 
                 self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
 
@@ -346,7 +350,7 @@ class MetaLexConverter():
                     if element.nodeName != "kop" :
                         if element.nodeType != element.TEXT_NODE:
                             index_counter += 1
-                        self.handle(element,container_node,work_uri,work_uri, expression_uri,container_node,lang_tag, index_counter)
+                        self.handle(element,container_node,work_uri,work_uri, expression_uri,container_node,lang_tag, index_counter, hcontainer_parent=expression_uri)
                 
                 target_node.appendChild(container_node)
                 target_parent_node.appendChild(target_node)
@@ -357,7 +361,7 @@ class MetaLexConverter():
             elif source_node.tagName in self.profile.lookup(self.c) :
                 target_node = self.target_doc.createElement(self.c)
                 
-                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, target_node, lang_tag, index)
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, target_node, lang_tag, index, hcontainer_parent)
                 
                 target_parent_node.appendChild(target_node)
                 self.report.addSubstitution(self.c)
@@ -366,7 +370,7 @@ class MetaLexConverter():
                 for element in source_node.childNodes :
                     if element.nodeType != element.TEXT_NODE:
                         index_counter += 1
-                    self.handle(element,target_node, base_work_uri, work_uri, expression_uri, target_node, lang_tag, index_counter)
+                    self.handle(element,target_node, base_work_uri, work_uri, expression_uri, target_node, lang_tag, index_counter, hcontainer_parent)
 
             # ==========
             # Deal with Blocks
@@ -374,7 +378,7 @@ class MetaLexConverter():
             elif source_node.tagName in self.profile.lookup(self.b) :
                 target_node = self.target_doc.createElement(self.b)
 
-                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index, hcontainer_parent)
 
                 target_parent_node.appendChild(target_node)
                 self.report.addSubstitution(self.b)
@@ -383,7 +387,7 @@ class MetaLexConverter():
                 for element in source_node.childNodes :
                     if element.nodeType != element.TEXT_NODE:
                         index_counter += 1
-                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter, hcontainer_parent)
 
 
             # ==========
@@ -392,7 +396,7 @@ class MetaLexConverter():
             elif source_node.tagName in self.profile.lookup(self.ce) :
                 target_node = self.target_doc.createElement(self.c)
 
-                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index, hcontainer_parent)
 
                 metadata_parent.appendChild(target_node)
                 self.report.addSubstitution(self.c)
@@ -402,7 +406,7 @@ class MetaLexConverter():
                 for element in source_node.childNodes :
                     if element.nodeType != element.TEXT_NODE:
                         index_counter += 1
-                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter, hcontainer_parent)
                     
             # ==========
             # Deal with hTitles
@@ -410,7 +414,7 @@ class MetaLexConverter():
             elif source_node.tagName in self.profile.lookup(self.ht) :
                 target_node = self.target_doc.createElement(self.ht)
 
-                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index, hcontainer_parent)
 
                 target_parent_node.appendChild(target_node)
 
@@ -420,7 +424,7 @@ class MetaLexConverter():
                 for element in source_node.childNodes :
                     if element.nodeType != element.TEXT_NODE:
                         index_counter += 1
-                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter, hcontainer_parent)
                     
             # ==========
             # Deal with an Inline element 
@@ -431,7 +435,7 @@ class MetaLexConverter():
                 target_node = self.target_doc.createElement(self.i)
 
                 # Add the metadata for inline elements to the container parent.
-                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index, hcontainer_parent)
 
                 
                 if target_parent_node.tagName != self.b and target_parent_node.tagName != self.ht and target_parent_node.tagName != self.i:
@@ -448,7 +452,7 @@ class MetaLexConverter():
                 for element in source_node.childNodes :
                     if element.nodeType != element.TEXT_NODE:
                         index_counter += 1
-                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)                
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter, hcontainer_parent)                
                           
 
 
@@ -461,7 +465,7 @@ class MetaLexConverter():
                 target_node = self.target_doc.createElement(self.ms)
 
                 # Add the metadate for inline elements to the container parent.
-                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index, hcontainer_parent)
 
                 if target_parent_node.tagName != self.b and target_parent_node.tagName != self.ht and target_parent_node.tagName != self.i:
                     block_node = self.createBlock(target_node)
@@ -481,7 +485,7 @@ class MetaLexConverter():
                 target_node = self.target_doc.createElement(self.i)
 
                 # Add the metadata for citation elements to the container parent
-                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index)
+                work_uri, expression_uri, lang_tag = self.createSHA1Element(source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index, hcontainer_parent)
                 target_parent_node.appendChild(target_node)
                 self.report.addSubstitution(self.i)
                 
@@ -489,7 +493,7 @@ class MetaLexConverter():
                 for element in source_node.childNodes :
                     if element.nodeType != element.TEXT_NODE:
                         index_counter += 1
-                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter)
+                    self.handle(element,target_node,base_work_uri, work_uri, expression_uri, metadata_parent, lang_tag, index_counter, hcontainer_parent)
 
             else :
                 logging.warning('Node {1} in {0} does not occur in mapping list.'.format(target_parent_expression_uri, source_node.tagName))
@@ -711,7 +715,6 @@ class MetaLexConverter():
             if meta : mcontainer.appendChild(meta)     
                   
 
-        
         # ===========
         # Add the 'additional attributes' if they exist
         # ===========
@@ -919,7 +922,7 @@ class MetaLexConverter():
         
          
 
-    def createSHA1Element(self, source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index):
+    def createSHA1Element(self, source_node, target_node, base_work_uri, target_parent_work_uri, target_parent_expression_uri, metadata_parent, lang_tag, index, hcontainer_parent):
         # TODO: check for integer lang_tag
 
 
@@ -938,8 +941,9 @@ class MetaLexConverter():
         expression_uri = self.getExpressionURI(work_uri, lang_tag)
         
         additional_attrs = { self.sameAs : sha1_id }
-
         additional_attrs[self.t] = self.o + source_node.tagName
+        if hcontainer_parent:
+            additional_attrs[self.hc_parent] = hcontainer_parent
         
         self.handleMetadata(metadata_parent, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
         
