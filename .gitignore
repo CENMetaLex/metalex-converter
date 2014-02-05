@@ -1,0 +1,5 @@
+*.pyc
+latest_run
+test/
+.project
+.pydevproject
