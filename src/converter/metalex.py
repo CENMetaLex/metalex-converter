@@ -197,7 +197,7 @@ class MetaLexConverter():
         
         # Determine URIs for the root node
         work_uri = self.top_uri + self.source_root_uri         
-    
+        self.root_work_uri = work_uri
         
         # Check whether the document is empty or not
         if len(self.source_doc.getElementsByTagName(self.profile.lookup('error')))>0 :
@@ -276,10 +276,11 @@ class MetaLexConverter():
             if source_node.tagName in self.profile.lookup(self.hc) :
                 target_node = self.target_doc.createElement(self.hc)
                 
-                work_uri = self.getHContainerWorkURI(source_node, base_work_uri, index)
+                work_uri, short_work_uri = self.getHContainerWorkURI(source_node, base_work_uri, index)
 
                 lang_tag = self.setLanguageTag(source_node, target_node, lang_tag)
                 expression_uri = self.getExpressionURI(work_uri, lang_tag)
+                short_expression_uri = self.getExpressionURI(short_work_uri, lang_tag)
                 
                 self.createIdentifyingAttributes(source_node, target_node, expression_uri)
                 
@@ -287,7 +288,10 @@ class MetaLexConverter():
                 
                 ontology_type = self.o + source_node.tagName
                 
-                additional_attrs = {self.t : ontology_type }
+                if short_expression_uri != expression_uri :
+                    additional_attrs = {self.t : ontology_type, self.sameAs: short_expression_uri }
+                else :
+                    additional_attrs = {self.t : ontology_type }
 
                 self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
                 
@@ -307,10 +311,11 @@ class MetaLexConverter():
                 target_node = self.target_doc.createElement(self.hc)
 
                 # hoofdstuk/kop/nr
-                work_uri = self.getHContainerWorkURI(source_node, base_work_uri, index)
+                work_uri, short_work_uri = self.getHContainerWorkURI(source_node, base_work_uri, index)
                 
                 lang_tag = self.setLanguageTag(source_node, target_node, lang_tag)
                 expression_uri = self.getExpressionURI(work_uri, lang_tag)
+                short_expression_uri = self.getExpressionURI(short_work_uri, lang_tag)
                 
                 self.createIdentifyingAttributes(source_node, target_node, expression_uri)
 
@@ -318,7 +323,10 @@ class MetaLexConverter():
                 
                 ontology_type = self.o + source_node.tagName
                 
-                additional_attrs = { self.t : ontology_type }
+                if short_expression_uri != expression_uri :
+                    additional_attrs = {self.t : ontology_type, self.sameAs: short_expression_uri }
+                else :
+                    additional_attrs = {self.t : ontology_type }
                 
                 self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
 
@@ -765,9 +773,13 @@ class MetaLexConverter():
     def getHContainerWorkURI(self, node, base_work_id, index):
         try :
             nr = self.getText(node.getElementsByTagName("nr")[0].childNodes)
-            return "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
+            work_uri = "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
+            short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
         except :
-            return "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),index)
+            work_uri = "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),index)
+            short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),index)
+            
+        return work_uri, short_work_uri
             
     def createClassAttribute(self, node):
         new_class = self.target_doc.createAttributeNS(str(self.XHTML),self.cl)

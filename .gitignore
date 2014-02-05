@@ -1,0 +1,6 @@
+*.pyc
+latest_run
+test/
+.project
+.pydevproject
+.settings/org.eclipse.core.resources.prefs

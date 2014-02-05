@@ -264,7 +264,8 @@ def convertAll(bwbid_dict, flags):
             target_file.close()
             logging.debug("(done)")
 
-        processReports(reports, profile, flags['report_file'])
+        if flags['produce_report'] :
+            processReports(reports, profile, flags['report_file'])
 
         logging.info("Conversion complete.")
         
