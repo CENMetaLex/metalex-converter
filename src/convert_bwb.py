@@ -396,7 +396,7 @@ if __name__ == '__main__':
             flags['virtuoso_pw'] = sys.argv[sys.argv.index('--virtuoso-pw')+1]
             logging.info('Set non standard password for "dba" user in virtuoso (using "isql-v" commandline tool)')
             
-        if '--rdf-upload-url' in sys.argv :
+        if '--rdf-upload-url' in sys.argv and flags['store'] == '4store':
             flags['rdf_upload_url'] = sys.argv[sys.argv.index('--rdf-upload-url')+1]
             logging.info("Will upload RDF to: {0}".format(flags['rdf_upload_url']))
             
@@ -456,10 +456,11 @@ Licensed under the AGPL v3 (see http://www.gnu.org/licenses/agpl-3.0.txt)
         --report-file <file>    Output conversion report to specified file
         
         
-        --store-type [4store|cliopatria]
-        --rdf-upload-url <url>  RDF upload URL
+        --store-type [4store|cliopatria|virtuoso]
+        --rdf-upload-url <url>  RDF upload URL (only used for 4store)
         -user                   Username for RDF upload (ClioPatria only, if required)
         -pass                   Password for RDF upload (ClioPatria only, if required)
+        -virtuoso_pw            Only used for virtuoso
         
         --log-to-file           Log to conversion.log instead of screen
         """
