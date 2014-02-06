@@ -241,7 +241,7 @@ class MetaLexConverter():
 
 
         # Create attributes for the root node        
-        self.createLegislativeModificationEvent(target_root, expression_uri)
+        self.createLegislativeModificationEvent(target_root, expression_uri, lang_tag)
         
         self.createIdentifyingAttributes(source_root, target_root, expression_uri)
                 
@@ -534,11 +534,15 @@ class MetaLexConverter():
     # Utility Functions
     # ----------
 
-    def createLegislativeModificationEvent(self, node, expression_uri):
+    def createLegislativeModificationEvent(self, node, expression_uri, lang_tag):
         mcontainer, new = self.getMContainer(node)
         
-        self.creation_event_uri = self.top_uri + 'event/' + self.source_root_uri + '/' + self.v
-        self.creation_process_uri = self.top_uri + 'process/' + self.source_root_uri + '/' + self.v
+        if lang_tag :
+            self.creation_event_uri = self.top_uri + 'event/' + self.source_root_uri + '/' + lang_tag + '/' + self.v
+            self.creation_process_uri = self.top_uri + 'process/' + self.source_root_uri + '/' + lang_tag + '/' + self.v
+        else :
+            self.creation_event_uri = self.top_uri + 'event/' + self.source_root_uri + '/' + self.v
+            self.creation_process_uri = self.top_uri + 'process/' + self.source_root_uri + '/' + self.v
         
         date = self.top_uri + 'date/' + self.v
         
@@ -984,10 +988,12 @@ class MetaLexConverter():
         sha1_hex = hashlib.sha1(self.getText(source_node.childNodes)).hexdigest()
         sha1_id = base_work_uri + "/" + source_node.localName + "/" + sha1_hex 
 
-        self.createIdentifyingAttributes(source_node, target_node, sha1_id)
-        
         lang_tag = self.setLanguageTag(source_node, target_node, lang_tag)
         expression_uri = self.getExpressionURI(work_uri, lang_tag)
+        
+        self.createIdentifyingAttributes(source_node, target_node, expression_uri)
+        
+        
         
         additional_attrs = { self.sameAs : sha1_id }
         additional_attrs[self.t] = self.o + source_node.tagName
