@@ -72,6 +72,7 @@ class MetaLexConverter():
     DCTERMS = Namespace('http://purl.org/dc/terms/')
     FOAF = Namespace('http://xmlns.com/foaf/0.1/')
     SEM = Namespace('http://semanticweb.cs.vu.nl/2009/11/sem/')
+    PROV = Namespace('http://www.w3.org/ns/prov#')
 
    
     # Standard elements
@@ -89,6 +90,7 @@ class MetaLexConverter():
     ms = "milestone"
     m = "meta"
     ci = "cite"
+    
 
     # Class attribute for CSS rendering  
     cl = 'class'
@@ -113,6 +115,9 @@ class MetaLexConverter():
     # Standard MetaLex attributes
     n = "name"
     
+    # BWB Specific attributes
+    actor = 'functie'
+    
     label = str(RDFS.label)
     
     # Standard semantic relations
@@ -126,6 +131,8 @@ class MetaLexConverter():
     
     
     sameAs = OWL["sameAs"]
+    
+    
     
 
     def __init__(self, id, doc, source_doc_uri, version, modification_type, abbreviation, title, profile, flags):
@@ -175,6 +182,7 @@ class MetaLexConverter():
         self.graph.namespace_manager.bind('dcterms',self.DCTERMS)
         self.graph.namespace_manager.bind('foaf',self.FOAF)
         self.graph.namespace_manager.bind('sem',self.SEM)
+        self.graph.namespace_manager.bind('prov',self.PROV)
 
         # Create a new citation graph...
         self.cg = CiteGraph()
@@ -534,6 +542,9 @@ class MetaLexConverter():
         
         date = self.top_uri + 'date/' + self.v
         
+
+            
+        
         # ===========
         # Add the modification event
         # ===========
@@ -593,27 +604,65 @@ class MetaLexConverter():
         if meta : mcontainer.appendChild(meta)
         
         # ===========
-        # Add a Open Provenance Model process
+        # Add an Open Provenance Model process
         # ===========
-        meta = self.createHrefMeta(self.creation_process_uri, self.t, self.OPMV['Process'])
-        if meta : mcontainer.appendChild(meta)
+        # meta = self.createHrefMeta(self.creation_process_uri, self.t, self.OPMV['Process'])
+        # if meta : mcontainer.appendChild(meta)
+        # 
+        # meta = self.createHrefMeta(self.creation_process_uri, self.TIME['hasEnd'],date)
+        # if meta : mcontainer.appendChild(meta)
+        # 
+        # meta = self.createHrefMeta(expression_uri, self.OPMV['wasGeneratedBy'],self.creation_process_uri)
+        # if meta : mcontainer.appendChild(meta)    
+        # 
+        # meta = self.createHrefMeta(expression_uri, self.t, self.OPMV['Artifact'])
+        # if meta : mcontainer.appendChild(meta)     
+        # 
+        # meta = self.createHrefMeta(expression_uri, self.OPMV['wasGeneratedAt'], date)
+        # if meta : mcontainer.appendChild(meta)    
+        # 
         
-        meta = self.createHrefMeta(self.creation_process_uri, self.TIME['hasEnd'],date)
-        if meta : mcontainer.appendChild(meta)
-        
-        meta = self.createHrefMeta(expression_uri, self.OPMV['wasGeneratedBy'],self.creation_process_uri)
-        if meta : mcontainer.appendChild(meta)    
-        
-        meta = self.createHrefMeta(expression_uri, self.t, self.OPMV['Artifact'])
-        if meta : mcontainer.appendChild(meta)     
-        
-        meta = self.createHrefMeta(expression_uri, self.OPMV['wasGeneratedAt'], date)
-        if meta : mcontainer.appendChild(meta)    
-        
+        # ===========
+        # Add a W3C Time timestamp for the date
+        # ===========
         meta = self.createPropertyMeta(date, self.TIME['inXSDDateTime'], self.v)
         if meta: mcontainer.appendChild(meta)
         
-
+        # ===========
+        # Add a PROV Activity
+        # ===========
+        meta = self.createHrefMeta(self.creation_process_uri, self.t, self.PROV['Activity'])
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createPropertyMeta(self.creation_process_uri, self.PROV['endedAtTime'],self.v)
+        if meta : mcontainer.appendChild(meta)
+        
+        meta = self.createHrefMeta(expression_uri, self.PROV['wasGeneratedBy'],self.creation_process_uri)
+        if meta : mcontainer.appendChild(meta)    
+        
+        meta = self.createHrefMeta(expression_uri, self.t, self.PROV['Entity'])
+        if meta : mcontainer.appendChild(meta)     
+        
+        meta = self.createPropertyMeta(expression_uri, self.PROV['generatedAtTime'], self.v)
+        if meta : mcontainer.appendChild(meta)    
+        
+        actors = self.source_doc.getElementsByTagName(self.actor)
+        for actor in actors :
+            actor_title = self.getText([actor]).strip(' ,.:;')
+            actor_uri = self.top_uri + 'actor/' + urllib2.quote(actor_title.replace(' ','_'))
+        
+            meta = self.createHrefMeta(self.creation_process_uri, self.PROV['wasAssociatedWith'], actor_uri)
+            if meta : mcontainer.appendChild(meta)
+            
+            meta = self.createHrefMeta(expression_uri, self.PROV['wasAttributedTo'], actor_uri)
+            if meta : mcontainer.appendChild(meta)
+        
+            meta = self.createHrefMeta(actor_uri, self.t, self.PROV['Agent'])
+            if meta : mcontainer.appendChild(meta)
+        
+            meta = self.createPropertyMeta(actor_uri, self.FOAF['name'], actor_title)
+            if meta : mcontainer.appendChild(meta)
+        
  
         # ===========
         # Finally add the mcontainer to the node (if it's new)
