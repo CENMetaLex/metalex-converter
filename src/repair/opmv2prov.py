@@ -69,11 +69,14 @@ class FunctieHandler(xml.sax.ContentHandler):
 
 if __name__ == '__main__':
     print "Usage: opmv2prov [MetaLexFilesMask] [OutFile.nt]"
-    path = sys.argv[0]
-    outpath = sys.argv[1]
+    path = sys.argv[1]
+    outpath = sys.argv[2]
     out = open(outpath,'w')
     for mlfile in glob.glob(path):
         print mlfile
-        xml.sax.parse(open(mlfile),FunctieHandler())
+        try :
+            xml.sax.parse(open(mlfile),FunctieHandler())
+        except :
+            print "Could not parse {}".format(mlfile)
 
     out.close()
