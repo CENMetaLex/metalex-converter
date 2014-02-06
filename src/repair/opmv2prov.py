@@ -39,7 +39,8 @@ class FunctieHandler(xml.sax.ContentHandler):
         
     def characters(self, content):
         if self.functie == True:
-            agent_title = content.strip(' ,.:;')
+            agent_title = content.strip(' ,.:;').encode('utf-8')
+            
             agent_uri = 'http://doc.metalex.eu/id/agent/' + urllib2.quote(agent_title.replace(' ','_'))
             
             self.write(self.process_uri,TYPE,ACTIVITY)
@@ -69,14 +70,17 @@ class FunctieHandler(xml.sax.ContentHandler):
 
 if __name__ == '__main__':
     print "Usage: opmv2prov [MetaLexFilesMask] [OutFile.nt]"
+    
+    print sys.argv
     path = sys.argv[1]
     outpath = sys.argv[2]
     out = open(outpath,'w')
+    print len(glob.glob(path))
     for mlfile in glob.glob(path):
-        print mlfile
         try :
             xml.sax.parse(open(mlfile),FunctieHandler())
-        except :
-            print "Could not parse {}".format(mlfile)
+        except Exception as e :
+            print mlfile
+            print e
 
     out.close()
