@@ -2,6 +2,7 @@ import xml.sax
 import urllib2
 import glob
 import re
+import sys
 
 ASSOCIATED = "http://www.w3.org/ns/prov#wasAssociatedWith"
 ATTRIBUTED = "http://www.w3.org/ns/prov#wasAttributedTo"
