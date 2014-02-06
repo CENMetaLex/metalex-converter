@@ -23,11 +23,12 @@ class FunctieHandler(xml.sax.ContentHandler):
         
     def startElement(self, name, attrs):
         if name == 'root':
-            self.expression_uri = attrs.getValue("about")
-            self.process_uri = self.expression_uri.replace('/id/','/id/process/')
+            if 'about' in attrs:
+                self.expression_uri = attrs.getValue("about")
+                self.process_uri = self.expression_uri.replace('/id/','/id/process/')
             
-            m = re.search('(?P<date>\d\d\d\d-\d\d-\d\d)',self.process_uri)
-            self.date = m.group('date')
+                m = re.search('(?P<date>\d\d\d\d-\d\d-\d\d)',self.process_uri)
+                self.date = m.group('date')
         
         if "class" in attrs and attrs.getValue("class") == 'functie':
             self.functie = True
@@ -63,10 +64,15 @@ class FunctieHandler(xml.sax.ContentHandler):
     def writed(self,s,p,date):
         out.write("<{}> <{}> \"{}\"^^http://www.w3.org/2001/XMLSchema#date .\n".format(s,p,date))
         
-out = open('prov_repair.nt','w')
-        
-for mlfile in glob.glob('../test/*_ml.xml'):
-    print mlfile
-    xml.sax.parse(open(mlfile),FunctieHandler())
 
-out.close()
+
+if __name__ == '__main__':
+    print "Usage: opmv2prov [MetaLexFilesMask] [OutFile.nt]"
+    path = sys.argv(0)
+    outpath = sys.argv(1)
+    out = open(outpath,'w')
+    for mlfile in glob.glob(path):
+        print mlfile
+        xml.sax.parse(open(mlfile),FunctieHandler())
+
+    out.close()
