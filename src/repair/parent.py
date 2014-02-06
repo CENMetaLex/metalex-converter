@@ -4,41 +4,44 @@ import glob
 import re
 import sys
 
+hcontainers = ['root','bijlage', 'wijzig-divisie', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'divisie', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'circulaire.divisie', 'enig-artikel', 'regeling-sluiting']
+
 PARENT = 'http://www.metalex.eu/schema/1.0#parent'
 
 class ExpressionHandler(xml.sax.ContentHandler):
+    
+    parents = []
     
     def __init__(self):
         xml.sax.ContentHandler.__init__(self)
         
     def startElement(self, name, attrs):
-        if 'about' in attrs:
-            expression = attrs.getValue("about")
-
-            m = re.search('(?P<regulation>.*BWB.*?)/(?P<path>.*/)?(?P<hcontainer>(artikel|enig-artikel|aanhef|artikel\.toelichting|preambule|deel|bijlage|definitie|noot|circulaire.divisie|circulaire|regeling-sluiting|verdragtekst|titeldeel|hoofdstuk|paragraaf|regeling|wijzig-artikel|afdeling)/.+?/)(.*/)?(?P<lang>\w{2})?/(?P<date>\d\d\d\d-\d\d-\d\d)', expression)
-
-            if not m:
-                m = re.search('(?P<regulation>.*BWB.*?)/(.*/)?(?P<lang>\w{2})?/(?P<date>\d\d\d\d-\d\d-\d\d)', expression)
-        
-            if not m:
-                m = re.search('(?P<regulation>.*BWB.*?)/(.*/)?(?P<date>\d\d\d\d-\d\d-\d\d)', expression)
-        
-            if not m :
-                print expression
-                return
+        # print self.parents
+        #print attrs
+        if 'about' in attrs and self.parents != []:
+            expression = attrs.getValue('about')
+            print attrs
+            if self.parents != [] :
+                out.write("<{}> <{}> <{}> . \n".format(expression,PARENT,self.parents[-1]))
                 
-            parent = ""
-            groups = m.groupdict()
-            for p in ['regulation','path','hcontainer','lang','date'] :
-                if p in groups and groups[p]: 
-                    parent += "{}/".format(groups[p])
+            if 'class' in attrs.keys():
+                c = attrs.getValue('class')
+                print "yes"
+                
+                if c in hcontainers:
+                    self.parents.append(expression)
+                else :
+                    self.parents.append(self.parents[-1])
+            
 
-            parent = parent.rstrip('/')
-            parent = parent.replace('//','/')
-            parent = parent.replace('http:/doc','http://doc')
-           
-            if not parent == expression :
-                out.write("<{}> <{}> <{}> . \n".format(expression,PARENT,parent))
+
+        
+        
+                
+    def endElement(self, name):
+        if self.parents != [] :
+            del self.parents[-1]
+       
                 
             
     def write(self,s,p,o):
