@@ -42,8 +42,10 @@ class ExpressionHandler(xml.sax.ContentHandler):
                 else :
                     short = "{}{}{}".format(m.group('bwb'),m.group('hcontainer'),m.group('version'))
                     shortwork = "{}{}".format(m.group('bwb'),m.group('hcontainer'))
+                    work = "{}{}{}".format(m.group('bwb'),m.group('path',''),m.group('hcontainer'))
                     out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
                     out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
+                    out.write("<{}> <{}> <{}> . \n".format(work,SAMEAS,shortwork))
                 
             elif self.parents != [] :
                 self.parents.append(self.parents[-1])
