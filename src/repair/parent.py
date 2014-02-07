@@ -4,9 +4,10 @@ import glob
 import re
 import sys
 
-hcontainers = ['root','bijlage', 'wijzig-divisie', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'divisie', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'circulaire.divisie', 'enig-artikel', 'regeling-sluiting']
+hcontainers = ['bijlage', 'wijzig-divisie', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'divisie', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'circulaire.divisie', 'enig-artikel', 'regeling-sluiting']
 
 PARENT = 'http://www.metalex.eu/schema/1.0#parent'
+SAMEAS = 'http://www.w3.org/2002/07/owl#sameAs'
 
 class ExpressionHandler(xml.sax.ContentHandler):
     
@@ -18,20 +19,34 @@ class ExpressionHandler(xml.sax.ContentHandler):
     def startElement(self, name, attrs):
         # print self.parents
         #print attrs
-        if 'about' in attrs and self.parents != []:
-            expression = attrs.getValue('about')
-            print attrs
+        # print self.attributes
+        
+        expression = attrs.get('about',None)
+        c = attrs.get('class',None)
+        
+        
+        # print name, expression, c, self.parents
+        
+        if expression :
             if self.parents != [] :
                 out.write("<{}> <{}> <{}> . \n".format(expression,PARENT,self.parents[-1]))
                 
-            if 'class' in attrs.keys():
-                c = attrs.getValue('class')
-                print "yes"
+            if str(c) in hcontainers or name == 'hcontainer' or name == 'root':
+                self.parents.append(expression)
                 
-                if c in hcontainers:
-                    self.parents.append(expression)
+                m = re.search('(?P<bwb>.*/BWB.*?/)(.*/)?(?P<hcontainer>{}/.*)'.format(c),expression)
+                
+                if not m:
+                    pass
                 else :
-                    self.parents.append(self.parents[-1])
+                    short = "{}{}".format(m.group('bwb'),m.group('hcontainer'))
+                    out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
+                
+            elif self.parents != [] :
+                self.parents.append(self.parents[-1])
+                
+        else :
+            self.parents.append(self.parents[-1])
             
 
 
@@ -43,16 +58,7 @@ class ExpressionHandler(xml.sax.ContentHandler):
             del self.parents[-1]
        
                 
-            
-    def write(self,s,p,o):
-        out.write("<{}> <{}> <{}> .\n".format(s,p,o))
-        
-    def writes(self,s,p,string):
-        out.write("<{}> <{}> \"{}\"^^<http://www.w3.org/2001/XMLSchema#string> .\n".format(s,p,string))
-        
-    def writed(self,s,p,date):
-        out.write("<{}> <{}> \"{}\"^^<http://www.w3.org/2001/XMLSchema#date> .\n".format(s,p,date))
-        
+
 
 
 if __name__ == '__main__':
