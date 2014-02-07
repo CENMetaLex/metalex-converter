@@ -32,7 +32,7 @@ class ExpressionHandler(xml.sax.ContentHandler):
             if self.parents != [] :
                 out.write("<{}> <{}> <{}> . \n".format(expression,PARENT,self.parents[-1]))
                 
-            if str(c) in hcontainers or name == 'hcontainer' or name == 'root':
+            if str(c) in hcontainers or name == 'root':
                 self.parents.append(expression)
                 
                 m = re.search('(?P<bwb>.*/BWB.*?/)(?P<path>.*/)?(?P<hcontainer>{}/.*?)(?P<version>/.*)'.format(c),expression)
