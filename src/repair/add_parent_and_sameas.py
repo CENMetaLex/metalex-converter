@@ -35,7 +35,7 @@ class ExpressionHandler(xml.sax.ContentHandler):
             if str(c) in hcontainers or name == 'hcontainer' or name == 'root':
                 self.parents.append(expression)
                 
-                m = re.search('(?P<bwb>.*/BWB.*?/)(?P<path>.*/)?(?P<hcontainer>{})(?P<version>/.*)'.format(c),expression)
+                m = re.search('(?P<bwb>.*/BWB.*?/)(?P<path>.*/)?(?P<hcontainer>{}/.*?)(?P<version>/.*)'.format(c),expression)
                 
                 if not m:
                     pass
