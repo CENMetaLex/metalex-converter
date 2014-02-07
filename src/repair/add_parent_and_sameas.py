@@ -62,7 +62,7 @@ class ExpressionHandler(xml.sax.ContentHandler):
 
 
 if __name__ == '__main__':
-    print "Usage: parent [MetaLexFilesMask] [OutFile.nt]"
+    print "Usage: python add_parent_and_sameas.py '[MetaLexFilesMask]' [OutFile.nt]"
     
     print sys.argv
     path = sys.argv[1]
