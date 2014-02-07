@@ -41,7 +41,7 @@ class ExpressionHandler(xml.sax.ContentHandler):
                     pass
                 else :
                     short = "{}{}{}".format(m.group('bwb'),m.group('hcontainer'),m.group('version'))
-                    shortwork = "{}{}{}".format(m.group('bwb'),m.group('hcontainer'))
+                    shortwork = "{}{}".format(m.group('bwb'),m.group('hcontainer'))
                     out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
                     out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
                 
