@@ -7,6 +7,7 @@ import sys
 hcontainers = ['bijlage', 'wijzig-divisie', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'divisie', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'circulaire.divisie', 'enig-artikel', 'regeling-sluiting']
 
 PARENT = 'http://www.metalex.eu/schema/1.0#parent'
+REALIZES = 'http://www.metalex.eu/schema/1.0#realizes'
 SAMEAS = 'http://www.w3.org/2002/07/owl#sameAs'
 
 class ExpressionHandler(xml.sax.ContentHandler):
@@ -34,13 +35,15 @@ class ExpressionHandler(xml.sax.ContentHandler):
             if str(c) in hcontainers or name == 'hcontainer' or name == 'root':
                 self.parents.append(expression)
                 
-                m = re.search('(?P<bwb>.*/BWB.*?/)(.*/)?(?P<hcontainer>{}/.*)'.format(c),expression)
+                m = re.search('(?P<bwb>.*/BWB.*?/)(?P<path>.*/)?(?P<hcontainer>{})(?P<version>/.*)'.format(c),expression)
                 
                 if not m:
                     pass
                 else :
-                    short = "{}{}".format(m.group('bwb'),m.group('hcontainer'))
+                    short = "{}{}{}".format(m.group('bwb'),m.group('hcontainer'),m.group('version'))
+                    shortwork = "{}{}{}".format(m.group('bwb'),m.group('hcontainer'))
                     out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
+                    out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
                 
             elif self.parents != [] :
                 self.parents.append(self.parents[-1])
