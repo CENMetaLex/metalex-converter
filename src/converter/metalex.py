@@ -90,6 +90,7 @@ class MetaLexConverter():
     ms = "milestone"
     m = "meta"
     ci = "cite"
+    short = "short"
     
 
     # Class attribute for CSS rendering  
@@ -301,10 +302,11 @@ class MetaLexConverter():
                 additional_attrs = {self.t : ontology_type }
                 if short_expression_uri != expression_uri :
                     additional_attrs[self.sameAs] = short_expression_uri 
+                    additional_attrs[self.realizes] = short_work_uri
                 if hcontainer_parent :
                     additional_attrs[self.hc_parent] = hcontainer_parent
 
-                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
+                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs, short_work_uri=short_work_uri)
                 
                 target_parent_node.appendChild(target_node)
                 self.report.addSubstitution(self.hc)
@@ -337,10 +339,11 @@ class MetaLexConverter():
                 additional_attrs = {self.t : ontology_type }
                 if short_expression_uri != expression_uri :
                     additional_attrs[self.sameAs] = short_expression_uri 
+                    additional_attrs[self.realizes] = short_work_uri
                 if hcontainer_parent :
                     additional_attrs[self.hc_parent] = hcontainer_parent
                 
-                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs)
+                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs,s hort_work_uri=short_work_uri)
 
                 # Deal with the htitle (kop)
                 self.handle(source_node.getElementsByTagName("kop")[0],target_node,work_uri,work_uri, expression_uri,target_node, lang_tag)
@@ -709,7 +712,7 @@ class MetaLexConverter():
             mcontainer = node.getElementsByTagName(self.mc).item(0)
         return mcontainer, new
 
-    def handleMetadata(self, node, parent_expression_uri, expression_uri, work_uri, attributes, additional_attrs = None):
+    def handleMetadata(self, node, parent_expression_uri, expression_uri, work_uri, attributes, additional_attrs = None, short_work_uri=None):
 
         
         mcontainer, new = self.getMContainer(node)
@@ -725,6 +728,13 @@ class MetaLexConverter():
         # ===========
         meta = self.createHrefMeta(expression_uri, self.realizes, work_uri)
         if meta : mcontainer.appendChild(meta)
+        
+        # ===========
+        # Add sameAs relation between long and short work level identifier
+        # ===========
+        if short_work_uri != None and short_work_uri != work_uri :
+            meta = self.createHrefMeta(work_uri, self.sameAs, short_work_uri)
+            if meta: mcontainer.appendChild(meta)
         
         # ===========
         # Add type to work level identifier
@@ -830,10 +840,18 @@ class MetaLexConverter():
         try :
             nr = self.getText(node.getElementsByTagName("nr")[0].childNodes)
             work_uri = "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
-            short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
+            
+            if node.localName in self.profile.lookup(self.short) :
+                short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
+            else :
+                short_work_uri = work_uri
         except :
             work_uri = "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),index)
-            short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),index)
+            
+            if node.localName in self.profile.lookup(self.short) :
+                short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),index)
+            else :
+                short_work_uri = work_uri
             
         return work_uri, short_work_uri
             
