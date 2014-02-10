@@ -9,15 +9,18 @@ ATTRIBUTED = "http://www.w3.org/ns/prov#wasAttributedTo"
 ACTIVITY = "http://www.w3.org/ns/prov#Activity"
 ENTITY = "http://www.w3.org/ns/prov#Entity"
 AGENT = "http://www.w3.org/ns/prov#Agent"
+ORGANIZATION = "http://www.w3.org/ns/prov#Organization"
 GENERATED = "http://www.w3.org/ns/prov#wasGeneratedBy"
 ENDED = "http://www.w3.org/ns/prov#endedAtTime"
 GENERATEDTIME = "http://www.w3.org/ns/prov#wasGeneratedAtTime"
+ACTEDONBEHALF = "http://www.w3.org/ns/prov#actedOnBehalfOf"
 NAME = "http://xmlns.com/foaf/0.1/name"
 TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 class FunctieHandler(xml.sax.ContentHandler):
     
     functie = False
+    organisatie = False
     
     def __init__(self):
         xml.sax.ContentHandler.__init__(self)
@@ -34,15 +37,21 @@ class FunctieHandler(xml.sax.ContentHandler):
         if "class" in attrs and attrs.getValue("class") == 'functie':
             self.functie = True
             
+        if "class" in attrs and attrs.getValue("class") == 'organisatie':
+            self.organisatie = True
+            
     def endElement(self, name):
         self.functie = False
+        self.organisatie = False
+        self.agent_uri = None
         
     def characters(self, content):
         if self.functie == True:
             agent_title = content.replace('\n',' ').replace('\t',' ').strip(' ,.:;').encode('utf-8')
             if agent_title != '':
                  agent_uri = 'http://doc.metalex.eu/id/agent/' + urllib2.quote(agent_title.replace(' ','_'))
-            
+                 self.agent_uri = agent_uri
+                 
                  self.write(self.process_uri,TYPE,ACTIVITY)
                  self.write(self.expression_uri,TYPE,ENTITY)
             
@@ -53,7 +62,19 @@ class FunctieHandler(xml.sax.ContentHandler):
                  self.write(self.expression_uri,ATTRIBUTED,agent_uri)
                  self.writes(agent_uri,NAME,agent_title)
                  self.write(agent_uri,TYPE,AGENT)
-            
+                 
+        if self.organisatie == True:
+            org_title = content.replace('\n',' ').replace('\t',' ').strip(' ,.:;').encode('utf-8')
+            if org_title != '':
+                org_uri = 'http://doc.metalex.eu/id/agent/' + urllib2.quote(org_title.replace(' ','_'))
+                
+                self.write(self.process_uri,ASSOCIATED,org_uri)
+                self.write(self.expression_uri,ATTRIBUTED,org_uri)
+                self.writes(org_uri,NAME,org_title)
+                self.write(org_uri,TYPE,ORGANIZATION)
+                
+                if self.agent_uri :
+                    self.write(org_uri,ACTEDONBEHALF,self.agent_uri)
             
 
         
