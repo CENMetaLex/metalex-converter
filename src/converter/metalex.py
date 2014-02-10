@@ -343,7 +343,7 @@ class MetaLexConverter():
                 if hcontainer_parent :
                     additional_attrs[self.hc_parent] = hcontainer_parent
                 
-                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs,s hort_work_uri=short_work_uri)
+                self.handleMetadata(target_node, target_parent_expression_uri, expression_uri, work_uri, source_node.attributes, additional_attrs, short_work_uri=short_work_uri)
 
                 # Deal with the htitle (kop)
                 self.handle(source_node.getElementsByTagName("kop")[0],target_node,work_uri,work_uri, expression_uri,target_node, lang_tag)
@@ -790,6 +790,18 @@ class MetaLexConverter():
                 else :
                     meta = self.createPropertyMeta(expression_uri, k, additional_attrs[k])
                     if meta : mcontainer.appendChild(meta)
+                    
+        # ===========
+        # Add link to PROV Activity
+        # ===========           
+        meta = self.createHrefMeta(expression_uri, self.PROV['wasGeneratedBy'],self.creation_process_uri)
+        if meta : mcontainer.appendChild(meta)    
+        
+        meta = self.createHrefMeta(expression_uri, self.t, self.PROV['Entity'])
+        if meta : mcontainer.appendChild(meta)     
+        
+        meta = self.createPropertyMeta(expression_uri, self.PROV['generatedAtTime'], self.v)
+        if meta : mcontainer.appendChild(meta)
                 
         
         # ===========
