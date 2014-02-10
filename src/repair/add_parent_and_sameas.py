@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import xml.sax
 import urllib2
 import glob
@@ -5,10 +7,16 @@ import re
 import sys
 
 hcontainers = ['bijlage', 'wijzig-divisie', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'divisie', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'circulaire.divisie', 'enig-artikel', 'regeling-sluiting']
+shortlist = ['bijlage', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'enig-artikel', 'regeling-sluiting']
+
 
 PARENT = 'http://www.metalex.eu/schema/1.0#parent'
 REALIZES = 'http://www.metalex.eu/schema/1.0#realizes'
 SAMEAS = 'http://www.w3.org/2002/07/owl#sameAs'
+
+GENERATEDBY = 'http://www.w3.org/ns/prov#wasGeneratedBy'
+GENERATEDAT = 'http://www.w3.org/ns/prov#wasGeneratedAt'
+
 
 class ExpressionHandler(xml.sax.ContentHandler):
     
@@ -21,17 +29,23 @@ class ExpressionHandler(xml.sax.ContentHandler):
         # print self.parents
         #print attrs
         # print self.attributes
+        if name == 'meta':
+            return
         
         expression = attrs.get('about',None)
         c = attrs.get('class',None)
         
         
         # print name, expression, c, self.parents
-        
-        if expression :
+        if expression :      
             if self.parents != [] :
                 out.write("<{}> <{}> <{}> . \n".format(expression,PARENT,self.parents[-1]))
                 
+            m = re.search('(/(?P<lang>\w\w)/)?(?P<date>\d\d\d\d-\d\d-\d\d)',expression)
+            if m:
+                d = m.group('date')
+                
+            
             if str(c) in hcontainers or name == 'root':
                 self.parents.append(expression)
                 
@@ -42,13 +56,21 @@ class ExpressionHandler(xml.sax.ContentHandler):
                 else :
                     short = "{}{}{}".format(m.group('bwb'),m.group('hcontainer'),m.group('version'))
                     shortwork = "{}{}".format(m.group('bwb'),m.group('hcontainer'))
+                    work = "{}{}{}".format(m.group('bwb'),m.groupdict('')['path'],m.group('hcontainer')).replace('//','/').replace(':/','://')
+                    activity = "{}{}".format(m.group('bwb').replace('/id/','/id/process/'),m.group('version')).replace('//','/').replace(':/','://')
                     
                     
-                    out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
-                    out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
                     
-                    work = "{}{}{}".format(m.group('bwb'),m.groupdict('')['path'],m.group('hcontainer'))
-                    out.write("<{}> <{}> <{}> . \n".format(work,SAMEAS,shortwork))
+                    out.write("<{}> <{}> <{}> . \n".format(expression,GENERATEDBY,activity))
+                    
+                    if d:
+                        out.write("<{}> <{}> \"{}\"^^<http://www.w3.org/2001/XMLSchema#date> . \n".format(expression,GENERATEDAT,d))
+                    
+                    if expression != short and str(c) in shortlist:
+                        out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
+                    if work != shortwork and str(c) in shortlist :
+                        out.write("<{}> <{}> <{}> . \n".format(work,SAMEAS,shortwork))
+                        out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
                 
             elif self.parents != [] :
                 self.parents.append(self.parents[-1])
@@ -77,6 +99,7 @@ if __name__ == '__main__':
     outpath = sys.argv[2]
     out = open(outpath,'w')
     for mlfile in glob.glob(path):
+        print mlfile
         try :
             xml.sax.parse(open(mlfile),ExpressionHandler())
         except Exception as e :
