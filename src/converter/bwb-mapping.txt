@@ -205,7 +205,6 @@ error	error
 ontology_base	http://doc.metalex.eu/bwb/ontology/
 short	root
 short	bijlage
-short	wijzig-divisie
 short	circulaire
 short	afdeling
 short	deel
@@ -221,7 +220,6 @@ short	preambule
 short	sub-paragraaf
 short	titeldeel
 short	wijzig-lid-groep
-short	divisie
 short	artikel.toelichting
 short	artikel
 short	citaat-artikel
@@ -230,6 +228,5 @@ short	model
 short	artikel.toelichtingartikel
 short	paragraaf
 short	verdragtekst
-short	circulaire.divisie
 short	enig-artikel
 short	regeling-sluiting
