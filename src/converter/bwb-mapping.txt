@@ -203,7 +203,7 @@ root	wetgeving
 root_id	bwb-id
 error	error
 ontology_base	http://doc.metalex.eu/bwb/ontology/
-åshort	root
+short	root
 short	bijlage
 short	wijzig-divisie
 short	circulaire
@@ -233,5 +233,3 @@ short	verdragtekst
 short	circulaire.divisie
 short	enig-artikel
 short	regeling-sluiting
-
-
