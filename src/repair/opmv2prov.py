@@ -29,19 +29,32 @@ class FunctieHandler(xml.sax.ContentHandler):
         xml.sax.ContentHandler.__init__(self)
         
     def startElement(self, name, attrs):
-        self.expression_uri = str(attrs.get('about',None))
-        c = str(attrs.get('class',None))
+        self.expression_uri = attrs.get('about',None)
+        c = attrs.get('class',None)
         
-        
+        ### Create the process once we find the root element
         if name == 'root' and self.expression_uri:
                 self.process_uri = self.expression_uri.replace('/id/','/id/process/')
-            
+                
+                self.write(self.process_uri,TYPE,ACTIVITY)
+                
                 m = re.search('(?P<date>\d\d\d\d-\d\d-\d\d)',self.process_uri)
                 if m:
                     self.date = m.group('date')
+                    self.writed(self.process_uri,ENDED,self.date)
                 else :
                     self.date = None
+            
+        # For any other expression, we state that the process we just made generated the entity
+        if self.expression_uri:
+            self.write(self.expression_uri,TYPE,ENTITY)
+            
+            self.write(self.expression_uri,GENERATED,self.process_uri)
+            
+            if self.date :
+                self.writed(self.expression_uri,GENERATEDTIME,self.date)
         
+        # If the class of the element is functie or organisatie, we set the flag for handling its content
         if c == 'functie':
             self.functie = True
             
@@ -54,25 +67,25 @@ class FunctieHandler(xml.sax.ContentHandler):
         self.agent_uri = None
         
     def characters(self, content):
+        # Functie is usually the name of a minister or state-secretary
         if self.functie == True:
             agent_title = content.replace('\n',' ').replace('\t',' ').strip(' ,.:;').encode('utf-8')
             if agent_title != '':
                  agent_uri = 'http://doc.metalex.eu/id/agent/' + urllib2.quote(agent_title.replace(' ','_'))
                  self.agent_uri = agent_uri
                  
-                 self.write(self.process_uri,TYPE,ACTIVITY)
-                 self.write(self.expression_uri,TYPE,ENTITY)
+                 
+                 
             
-                 self.writed(self.process_uri,ENDED,self.date)
-                 self.write(self.expression_uri,GENERATED,self.process_uri)
-                 if self.date :
-                     self.writed(self.expression_uri,GENERATEDTIME,self.date)
+                 
+                 
                  self.write(self.process_uri,ASSOCIATED,agent_uri)
                  self.write(self.expression_uri,ATTRIBUTED,agent_uri)
                  self.writes(agent_uri,NAME,agent_title)
                  self.writes(agent_uri,LABEL,agent_title)
                  self.write(agent_uri,TYPE,AGENT)
-                 
+        
+        # Sometimes this information is split in a name and an organisation.
         if self.organisatie == True:
             org_title = content.replace('\n',' ').replace('\t',' ').strip(' ,.:;').encode('utf-8')
             if org_title != '':
