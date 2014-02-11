@@ -34,6 +34,8 @@ class FunctieHandler(xml.sax.ContentHandler):
         
         ### Create the process once we find the root element
         if name == 'root' and self.expression_uri:
+                self.root_expression_uri = self.expression_uri
+                
                 self.process_uri = self.expression_uri.replace('/id/','/id/process/')
                 
                 self.write(self.process_uri,TYPE,ACTIVITY)
@@ -80,7 +82,7 @@ class FunctieHandler(xml.sax.ContentHandler):
                  
                  
                  self.write(self.process_uri,ASSOCIATED,agent_uri)
-                 self.write(self.expression_uri,ATTRIBUTED,agent_uri)
+                 self.write(self.root_expression_uri,ATTRIBUTED,agent_uri)
                  self.writes(agent_uri,NAME,agent_title)
                  self.writes(agent_uri,LABEL,agent_title)
                  self.write(agent_uri,TYPE,AGENT)
@@ -92,7 +94,7 @@ class FunctieHandler(xml.sax.ContentHandler):
                 org_uri = 'http://doc.metalex.eu/id/agent/' + urllib2.quote(org_title.replace(' ','_'))
                 
                 self.write(self.process_uri,ASSOCIATED,org_uri)
-                self.write(self.expression_uri,ATTRIBUTED,org_uri)
+                self.write(self.root_expression_uri,ATTRIBUTED,org_uri)
                 self.writes(org_uri,NAME,org_title)
                 self.write(org_uri,TYPE,ORGANIZATION)
                 
