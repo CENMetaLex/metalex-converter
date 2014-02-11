@@ -15,7 +15,10 @@ ENDED = "http://www.w3.org/ns/prov#endedAtTime"
 GENERATEDTIME = "http://www.w3.org/ns/prov#wasGeneratedAtTime"
 ACTEDONBEHALF = "http://www.w3.org/ns/prov#actedOnBehalfOf"
 NAME = "http://xmlns.com/foaf/0.1/name"
+LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+
+
 
 class FunctieHandler(xml.sax.ContentHandler):
     
@@ -26,18 +29,23 @@ class FunctieHandler(xml.sax.ContentHandler):
         xml.sax.ContentHandler.__init__(self)
         
     def startElement(self, name, attrs):
-        if name == 'root':
-            if 'about' in attrs:
-                self.expression_uri = attrs.getValue("about")
+        self.expression_uri = str(attrs.get('about',None))
+        c = str(attrs.get('class',None))
+        
+        
+        if name == 'root' and self.expression_uri:
                 self.process_uri = self.expression_uri.replace('/id/','/id/process/')
             
                 m = re.search('(?P<date>\d\d\d\d-\d\d-\d\d)',self.process_uri)
-                self.date = m.group('date')
+                if m:
+                    self.date = m.group('date')
+                else :
+                    self.date = None
         
-        if "class" in attrs and attrs.getValue("class") == 'functie':
+        if c == 'functie':
             self.functie = True
             
-        if "class" in attrs and attrs.getValue("class") == 'organisatie':
+        if c == 'organisatie':
             self.organisatie = True
             
     def endElement(self, name):
@@ -57,10 +65,12 @@ class FunctieHandler(xml.sax.ContentHandler):
             
                  self.writed(self.process_uri,ENDED,self.date)
                  self.write(self.expression_uri,GENERATED,self.process_uri)
-                 self.writed(self.expression_uri,GENERATEDTIME,self.date)
+                 if self.date :
+                     self.writed(self.expression_uri,GENERATEDTIME,self.date)
                  self.write(self.process_uri,ASSOCIATED,agent_uri)
                  self.write(self.expression_uri,ATTRIBUTED,agent_uri)
                  self.writes(agent_uri,NAME,agent_title)
+                 self.writes(agent_uri,LABEL,agent_title)
                  self.write(agent_uri,TYPE,AGENT)
                  
         if self.organisatie == True:
