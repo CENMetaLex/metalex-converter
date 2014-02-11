@@ -230,3 +230,5 @@ short	paragraaf
 short	verdragtekst
 short	enig-artikel
 short	regeling-sluiting
+agent	functie
+organization	organisatie
