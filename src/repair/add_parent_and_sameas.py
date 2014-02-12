@@ -7,8 +7,9 @@ import re
 import sys
 
 hcontainers = ['bijlage', 'wijzig-divisie', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'divisie', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'circulaire.divisie', 'enig-artikel', 'regeling-sluiting']
-shortlist = ['bijlage', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'enig-artikel', 'regeling-sluiting']
-
+# shortlist = ['bijlage', 'circulaire', 'afdeling', 'deel', 'definitie', 'boek', 'wijzig-artikel', 'aanhef', 'noot', 'wetcitaat', 'regeling', 'hoofdstuk', 'preambule', 'sub-paragraaf', 'titeldeel', 'wijzig-lid-groep', 'artikel.toelichting', 'artikel', 'citaat-artikel', 'officiele-inhoudsopgave', 'model', 'artikel.toelichtingartikel', 'paragraaf', 'verdragtekst', 'enig-artikel', 'regeling-sluiting']
+shortlist = ['artikel']
+antishortlist = ['bijlage']
 
 PARENT = 'http://www.metalex.eu/schema/1.0#parent'
 REALIZES = 'http://www.metalex.eu/schema/1.0#realizes'
@@ -49,6 +50,7 @@ class ExpressionHandler(xml.sax.ContentHandler):
             if str(c) in hcontainers or name == 'root':
                 self.parents.append(expression)
                 
+                
                 m = re.search('(?P<bwb>.*/BWB.*?/)(?P<path>.*/)?(?P<hcontainer>{}/.*?)(?P<version>/.*)'.format(c),expression)
                 
                 if not m:
@@ -66,11 +68,13 @@ class ExpressionHandler(xml.sax.ContentHandler):
                     if d:
                         out.write("<{}> <{}> \"{}\"^^<http://www.w3.org/2001/XMLSchema#date> . \n".format(expression,GENERATEDAT,d))
                     
-                    if expression != short and str(c) in shortlist:
+                    if expression != short and str(c) in shortlist and not self.last_parent_type in antishortlist :
                         out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
-                    if work != shortwork and str(c) in shortlist :
+                    if work != shortwork and str(c) in shortlist and not self.last_parent_type in antishortlist:
                         out.write("<{}> <{}> <{}> . \n".format(work,SAMEAS,shortwork))
                         out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
+                
+                self.last_parent_type = str(c)
                 
             elif self.parents != [] :
                 self.parents.append(self.parents[-1])
