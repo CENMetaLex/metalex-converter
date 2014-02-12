@@ -91,6 +91,7 @@ class MetaLexConverter():
     m = "meta"
     ci = "cite"
     short = "short"
+    antishort = "antishort"
     
 
     # Class attribute for CSS rendering  
@@ -877,14 +878,14 @@ class MetaLexConverter():
             nr = self.getText(node.getElementsByTagName("nr")[0].childNodes)
             work_uri = "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
             
-            if node.localName in self.profile.lookup(self.short) :
+            if node.localName in self.profile.lookup(self.short) and not node.parentNode.localName in self.profile.lookup(self.antishort):
                 short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),nr.strip().encode('utf-8'))
             else :
                 short_work_uri = work_uri
         except :
             work_uri = "{0}/{1}/{2}".format(base_work_id,node.localName.encode('utf-8'),index)
             
-            if node.localName in self.profile.lookup(self.short) :
+            if node.localName in self.profile.lookup(self.short) and not node.parentNode.localName in self.profile.lookup(self.antishort):
                 short_work_uri = "{0}/{1}/{2}".format(self.root_work_uri,node.localName.encode('utf-8'),index)
             else :
                 short_work_uri = work_uri
