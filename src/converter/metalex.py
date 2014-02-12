@@ -118,6 +118,7 @@ class MetaLexConverter():
     
     # BWB Specific attributes
     actor = 'functie'
+    organization = 'organisatie'
     
     label = str(RDFS.label)
     
@@ -668,6 +669,29 @@ class MetaLexConverter():
             if meta : mcontainer.appendChild(meta)
         
             meta = self.createPropertyMeta(actor_uri, self.FOAF['name'], actor_title)
+            if meta : mcontainer.appendChild(meta)
+            
+            meta = self.createPropertyMeta(actor_uri, self.RDFS['label'], actor_title)
+            if meta : mcontainer.appendChild(meta)
+            
+        organizations = self.source_doc.getElementsByTagName(self.actor)
+        for organization in organizations :
+            org_title = self.getText([organization]).strip(' ,.:;')
+            org_uri = self.top_uri + 'actor/' + urllib2.quote(org_title.replace(' ','_'))
+        
+            meta = self.createHrefMeta(self.creation_process_uri, self.PROV['wasAssociatedWith'], org_uri)
+            if meta : mcontainer.appendChild(meta)
+            
+            meta = self.createHrefMeta(expression_uri, self.PROV['wasAttributedTo'], org_uri)
+            if meta : mcontainer.appendChild(meta)
+        
+            meta = self.createHrefMeta(org_uri, self.t, self.PROV['Organization'])
+            if meta : mcontainer.appendChild(meta)
+        
+            meta = self.createPropertyMeta(org_uri, self.FOAF['name'], org_title)
+            if meta : mcontainer.appendChild(meta)
+            
+            meta = self.createPropertyMeta(org_uri, self.RDFS['label'], org_title)
             if meta : mcontainer.appendChild(meta)
         
  
