@@ -70,10 +70,10 @@ class ExpressionHandler(xml.sax.ContentHandler):
                     
                     if self.parent_types != []:
                         if expression != short and str(c) in shortlist and not self.parent_types[-1] in antishortlist :
-                            print str(c), self.parent_types[-1], expression
+                            # print str(c), self.parent_types[-1], expression
                             out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
                         if work != shortwork and str(c) in shortlist and not self.parent_types[-1] in antishortlist:
-                            print str(c), self.parent_types[-1], expression
+                            # print str(c), self.parent_types[-1], expression
                             out.write("<{}> <{}> <{}> . \n".format(work,SAMEAS,shortwork))
                             out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
                 
