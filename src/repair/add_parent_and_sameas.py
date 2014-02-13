@@ -22,7 +22,7 @@ GENERATEDAT = 'http://www.w3.org/ns/prov#wasGeneratedAt'
 class ExpressionHandler(xml.sax.ContentHandler):
     
     parents = []
-    
+    parent_types = []
     def __init__(self):
         xml.sax.ContentHandler.__init__(self)
         
@@ -68,19 +68,24 @@ class ExpressionHandler(xml.sax.ContentHandler):
                     if d:
                         out.write("<{}> <{}> \"{}\"^^<http://www.w3.org/2001/XMLSchema#date> . \n".format(expression,GENERATEDAT,d))
                     
-                    if expression != short and str(c) in shortlist and not self.last_parent_type in antishortlist :
-                        out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
-                    if work != shortwork and str(c) in shortlist and not self.last_parent_type in antishortlist:
-                        out.write("<{}> <{}> <{}> . \n".format(work,SAMEAS,shortwork))
-                        out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
+                    if self.parent_types != []:
+                        if expression != short and str(c) in shortlist and not self.parent_types[-1] in antishortlist :
+                            print str(c), self.parent_types[-1], expression
+                            out.write("<{}> <{}> <{}> . \n".format(expression,SAMEAS,short))
+                        if work != shortwork and str(c) in shortlist and not self.parent_types[-1] in antishortlist:
+                            print str(c), self.parent_types[-1], expression
+                            out.write("<{}> <{}> <{}> . \n".format(work,SAMEAS,shortwork))
+                            out.write("<{}> <{}> <{}> . \n".format(expression,REALIZES,shortwork))
                 
-                self.last_parent_type = str(c)
+                self.parent_types.append(str(c))
                 
             elif self.parents != [] :
                 self.parents.append(self.parents[-1])
+                self.parent_types.append(self.parent_types[-1])
                 
         else :
             self.parents.append(self.parents[-1])
+            self.parent_types.append(self.parent_types[-1])
             
 
 
@@ -90,6 +95,8 @@ class ExpressionHandler(xml.sax.ContentHandler):
     def endElement(self, name):
         if self.parents != [] :
             del self.parents[-1]
+        if self.parent_types != []:
+            del self.parent_types[-1]
        
                 
 
