@@ -101,6 +101,7 @@ if __name__ == '__main__':
     outpath = sys.argv[2]
     out = open(outpath,'w')
     for mlfile in glob.glob(path):
+        shorts = {}
         print mlfile
         try :
             xml.sax.parse(open(mlfile),ExpressionHandler())
