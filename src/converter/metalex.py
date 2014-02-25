@@ -1165,46 +1165,46 @@ class MetaLexConverter():
 #                request.get_method = lambda: 'PUT'
 #                reply = urllib2.urlopen(request).read()
 #                logging.debug(reply)
-            elif self.flags['store'] == 'virtuoso':
-                logging.debug("Loading into Virtuoso using 'isql-v'")
+        elif self.flags['store'] == 'virtuoso':
+            logging.debug("Loading into Virtuoso using 'isql-v'")
+            
+            password = self.flags['virtuoso_pw']
+            
+            if format == 'turtle':
+                method = 'DB.DBA.TTLP_MT'
+            elif format == 'RDF/XML':
+                method = 'RDF_LOAD_RDFXML_MT' 
+            else :
+                logging.error("Upload format not supported!")
+                return
+            
+            
+            graph_uri = self.rdf_graph_uri
+            
+            # Uncommenting the below Will use one giant graph for Virtuoso
+            # graph_uri = 'http://doc.metalex.eu'
+            
+            absolute_filename = os.path.abspath(filename)
+            
+            logging.info('Writing graph uri to .graph file')
+            (fn, ext) = os.path.splitext(filename) 
+            
+            graph_filename = fn + '.graph'
+            
+            graph_file = open(graph_filename,'w')
+            graph_file.write(graph_uri)
+            graph_file.close()
+            
+            command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\',256);" | isql-v -U dba -P {}'.format(method, absolute_filename, graph_uri, password )
+            
+            try :
+                out = subprocess.check_output(command,shell=True)
+                logging.info(out)
+            except Exception as e:
+                logging.error("Could not load file into virtuoso")
                 
-                password = self.flags['virtuoso_pw']
-                
-                if format == 'turtle':
-                    method = 'DB.DBA.TTLP_MT'
-                elif format == 'RDF/XML':
-                    method = 'RDF_LOAD_RDFXML_MT' 
-                else :
-                    logging.error("Upload format not supported!")
-                    return
-                
-                
-                graph_uri = self.rdf_graph_uri
-                
-                # Uncommenting the below Will use one giant graph for Virtuoso
-                # graph_uri = 'http://doc.metalex.eu'
-                
-                absolute_filename = os.path.abspath(filename)
-                
-                logging.info('Writing graph uri to .graph file')
-                (fn, ext) = os.path.splitext(filename) 
-                
-                graph_filename = fn + '.graph'
-                
-                graph_file = open(graph_filename,'w')
-                graph_file.write(graph_uri)
-                graph_file.close()
-                
-                command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\',256);" | isql-v -U dba -P {}'.format(method, absolute_filename, graph_uri, password )
-                
-                try :
-                    out = subprocess.check_output(command,shell=True)
-                    logging.info(out)
-                except Exception as e:
-                    logging.error("Could not load file into virtuoso")
-                
-            else: 
-                logging.error("Store type not supported, or no store type set. Was expecting one of cliopatria, 4store, virtuoso.")
+        else: 
+            logging.error("Store type not supported, or no store type set. Was expecting one of cliopatria, 4store, virtuoso.")
         
         
     def writeGraph(self, filename, format='pajek') :
