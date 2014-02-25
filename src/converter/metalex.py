@@ -217,7 +217,7 @@ class MetaLexConverter():
             # Repealed regulations don't have a language
             expression_uri = self.getExpressionURI(work_uri,'')
             self.rdf_graph_uri = expression_uri 
-            self.createLegislativeModificationEvent(target_root, expression_uri)
+            self.createLegislativeModificationEvent(target_root, expression_uri,None)
             self.setNamespaces(target_root)
             
             if self.title :
