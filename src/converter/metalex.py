@@ -1195,12 +1195,13 @@ class MetaLexConverter():
             graph_file.write(graph_uri)
             graph_file.close()
             
-            command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\',256);" | isql-v -U dba -P {}'.format(method, absolute_filename, graph_uri, password )
+            command = 'echo "{} (file_to_string_output(\'{}\'),\'\',\'{}\',128);" | isql-v -U dba -P {}'.format(method, absolute_filename, graph_uri, password )
             
             try :
                 out = subprocess.check_output(command,shell=True)
                 logging.info(out)
             except Exception as e:
+                logging.error(e)
                 logging.error("Could not load file into virtuoso")
                 
         else: 
