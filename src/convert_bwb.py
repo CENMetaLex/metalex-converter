@@ -340,7 +340,7 @@ if __name__ == '__main__':
         flags['latest_run'] = latest_run
 
         if '--log-to-file' in sys.argv:
-            log_filename = 'log/conversion_{0}.log'.format(datetime.now().replace(' ','_'))
+            log_filename = 'log/conversion_{0}.log'.format(str(datetime.now()).replace(' ','_'))
             logging.basicConfig(filename=log_filename,filemode='w',level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         else :
             logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
